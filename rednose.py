@@ -1,7 +1,11 @@
-import nose
+import os
 import sys
+import traceback
+import linecache
+
+import nose
+
 from termstyle import *
-from nose.inspector import inspect_traceback
 
 failure = 'fail'
 error = 'error'
@@ -19,21 +23,6 @@ class RedNose(nose.plugins.Plugin):
 		self.stream = None
 		super(self.__class__, self).__init__(*a, **k)
 		
-	def _fmt(self, test, exc_info, c1, c2, c3):
-		error_cls, error, trace = exc_info
-		this_trace = trace
-		# while this_trace is not None:
-		# 	this_trace.tb_frame.f_code.co_filename = yellow(this_trace.tb_frame.f_code.co_filename)
-		# 	this_trace = this_trace.tb_next
-		
-		return (c1(error_cls.__name__), c2(error.message), trace)
-		
-	def formatFailure(self, test, exc_info):
-		return self._fmt(test, exc_info, red, yellow, white)
-	
-	def formatError(self, test, exc_info):
-		return self._fmt(test, exc_info, blue, yellow, white)
-
 	def print_test(self, char, color):
 		self.total += 1
 		self.out(color(char))
@@ -68,11 +57,69 @@ class RedNose(nose.plugins.Plugin):
 	def line(self, color=reset, char='-'):
 		self.outln(color(char * line_length))
 	
+	def _fmt_traceback(self, trace):
+		def relative(path):
+			# self.out(path)
+			_here = os.path.abspath(os.path.realpath(os.getcwd()))
+			_path = os.path.abspath(os.path.realpath(path))
+			if _path.startswith(_here):
+				return bold(_path[len(_here)+1:])
+			return path
+		def file_line(tb):
+			prefix = "file://"
+			prefix=""
+
+			f = tb.tb_frame
+			filename = f.f_code.co_filename
+			lineno = tb.tb_lineno
+			linecache.checkcache(filename)
+			function_name = f.f_code.co_name
+			
+			if '__unittest' in f.f_globals:
+				return None
+			
+			line_contents = linecache.getline(filename, lineno, f.f_globals).strip()
+
+			return "    %s line %s in %s\n      %s" % (
+				blue(prefix, relative(filename)),
+				bold(lineno),
+				cyan(function_name),
+				line_contents)
+
+		ret = []
+		ret.append(black("   Traceback (most recent call last):"))
+		current_trace = trace
+		while current_trace is not None:
+			line = file_line(current_trace)
+			if line is not None:
+				ret.append(line)
+			current_trace = current_trace.tb_next
+		return '\n'.join(ret)
+	
+	def _report_test(self, type_, test, err):
+		self.line(black)
+		self._report_num += 1
+		self.out("%s) " % (self._report_num))
+		if type_ == failure:
+			color = red
+			self.outln(color('FAIL: %s' % (test,)))
+		else:
+			color = yellow
+			self.outln(color('ERROR: %s' % (test,)))
+		
+		exc_type, exc_instance, exc_trace = err
+		self.outln(color('   ', bold(color(exc_type.__name__)), ": ", exc_instance))
+		self.outln()
+		self.outln(self._fmt_traceback(exc_trace))
+		
+		self.outln
+	
 	def report(self, stream):
 		self.outln()
+		self._report_num = 0
 		if len(self.reports) > 0:
-			self.line(black, char='=')
-			self.outln("REPORTY!")
+			for report in self.reports:
+				self._report_test(*report)
 			self.outln()
 		
 		self.line(black)
@@ -81,13 +128,16 @@ class RedNose(nose.plugins.Plugin):
 			self.out(" successfully")
 		else:
 			self.outln(". ")
-			if self.error > 0:
-				self.out(red("%s error%s" % (self.error, self.plural(self.error))))
-				if self.failure > 0:
-					self.out(", ")
 			if self.failure > 0:
-				self.out(yellow("%s failure%s" % (self.failure, self.plural(self.error))))
-			self.out(green(" (%s passed)" % (self.success,)))
+				self.out(red("%s FAILED%s" % (
+					self.failure,
+					self.plural(self.failure),
+				)))
+				if self.error > 0:
+					self.out(", ")
+			if self.error > 0:
+				self.out(yellow("%s error%s" % (self.error, self.plural(self.error))))
+			self.out(green(" (%s test%s passed)" % (self.success, self.plural(self.success))))
 		self.outln()
 		return False
 		
