@@ -82,7 +82,7 @@ class RedNose(nose.plugins.Plugin):
 
 			return "    %s line %s in %s\n      %s" % (
 				blue(prefix, relative(filename)),
-				bold(lineno),
+				lineno,
 				cyan(function_name),
 				line_contents)
 
@@ -147,4 +147,6 @@ class RedNose(nose.plugins.Plugin):
 		return DevNull()
 
 
+#TODO: care about verbose setting
+#TODO: figure out output-capture
 # useful: http://somethingaboutorange.com/mrl/projects/nose/doc/plugin_interface.html
