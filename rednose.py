@@ -19,6 +19,7 @@ class DevNull(object):
 	
 class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
+	env_opt_color = 'NOSE_REDNOSE_COLOR'
 	reports = []
 	error = success = failure = 0
 	total = 0
@@ -32,10 +33,21 @@ class RedNose(nose.plugins.Plugin):
 			"--rednose", action="store_true",
 			default=env.get(self.env_opt), dest="rednose",
 			help="More readable (and pretty!) coloured output")
+		parser.add_option(
+			"--rednose-color", action="store", type="string",
+			default=env.get(self.env_opt_color), dest="rednose_color",
+			help="enable/disable rednose colour (on|off|auto)")
 
 	def configure(self, options, conf):
 		if options.rednose:
 			self.enabled = True
+		color_mode = options.rednose_color.lower()
+		if color_mode == 'on':
+			enable()
+		elif color_mode == 'off':
+			disable()
+		else:
+			auto()
 		self.verbose = options.verbosity >= 2
 	
 	def beforeTest(self, test):
