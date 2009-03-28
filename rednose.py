@@ -3,6 +3,7 @@ import sys
 import traceback
 import linecache
 import re
+import time
 
 import nose
 
@@ -41,14 +42,18 @@ class RedNose(nose.plugins.Plugin):
 	def configure(self, options, conf):
 		if options.rednose:
 			self.enabled = True
-		color_mode = options.rednose_color.lower()
-		if color_mode == 'on':
-			enable()
-		elif color_mode == 'off':
-			disable()
-		else:
-			auto()
+		color_mode = options.rednose_color
+		auto() # enable colours if stdout is a tty
+		if color_mode:
+			color_mode = color_mode.lower()
+			if color_mode == 'on':
+				enable()
+			elif color_mode == 'off':
+				disable()
 		self.verbose = options.verbosity >= 2
+	
+	def begin(self):
+		self.start_time = time.time()
 	
 	def beforeTest(self, test):
 		if self.verbose:
@@ -108,10 +113,8 @@ class RedNose(nose.plugins.Plugin):
 	def _summarize(self):
 		"""summarize all tests - the number of failures, errors and successes"""
 		self._line(black)
-		self._out("%s reports run" % self.total)
-		if self.total == self.success:
-			self._out(" successfully")
-		else:
+		self._out("%s reports run (in %0.1f seconds)" % (self.total, time.time() - self.start_time))
+		if self.total > self.success:
 			self._outln(". ")
 			if self.failure > 0:
 				self._out(red("%s FAILED%s" % (
@@ -123,9 +126,9 @@ class RedNose(nose.plugins.Plugin):
 				self._out(yellow("%s error%s" % (
 					self.error,
 					self._plural(self.error) )))
-			self._out(green(" (%s test%s passed)" % (
-				self.success,
-				self._plural(self.success) )))
+		self._out(green(" (%s test%s passed)" % (
+			self.success,
+			self._plural(self.success) )))
 		self._outln()
 	
 	def _report_test(self, report_num, type_, test, err):
