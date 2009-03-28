@@ -10,6 +10,7 @@ from termstyle import *
 
 failure = 'fail'
 error = 'error'
+success = 'success'
 line_length = 77
 
 class DevNull(object):
@@ -17,32 +18,67 @@ class DevNull(object):
 	def writeln(self, msg=''): pass
 	
 class RedNose(nose.plugins.Plugin):
-	def __init__(self, *a, **k):
-		self.reports = []
-		self.error = self.success = self.failure = 0
-		self.total = 0
-		self.stream = None
-		super(self.__class__, self).__init__(*a, **k)
-		
-	def _print_test(self, char, color):
+	env_opt = 'NOSE_REDNOSE'
+	reports = []
+	error = success = failure = 0
+	total = 0
+	stream = None
+	verbose = False
+	enabled = False
+	score = 600
+	
+	def options(self, parser, env=os.environ):
+		parser.add_option(
+			"--rednose", action="store_true",
+			default=env.get(self.env_opt), dest="rednose",
+			help="More readable (and pretty!) coloured output")
+
+	def configure(self, options, conf):
+		if options.rednose:
+			self.enabled = True
+		self.verbose = options.verbosity >= 2
+	
+	def beforeTest(self, test):
+		if self.verbose:
+			self._out(str(test) + ' ... ')
+	
+	def _print_test(self, type_, color):
 		self.total += 1
-		self._out(color(char))
-		if self.total % line_length == 0:
-			self._outln()
+		if type_ == failure:
+			short_ = 'F'
+			long_ = 'FAILED'
+		elif type_ == error:
+			short_ = 'X'
+			long_ = 'ERROR'
+		else:
+			short_ = '.'
+			long_ = 'passed'
+
+		if self.verbose:
+			self._outln(color(long_))
+		else:
+			self._out(color(short_))
+			if self.total % line_length == 0:
+				self._outln()
 		
 	def addFailure(self, test, err):
 		self.failure += 1
 		self.reports.append((failure, test, err))
-		self._print_test('F', red)
+		self._print_test(failure, red)
 	
 	def addError(self, test, err):
 		self.error += 1
 		self.reports.append((error, test, err))
-		self._print_test('X', yellow)
+		self._print_test(error, yellow)
 		
 	def addSuccess(self, test):
 		self.success += 1
-		self._print_test('.', green)
+		self._print_test(success, green)
+
+	def setOutputStream(self, stream):
+		if not isinstance(stream, DevNull):
+			self.stream = stream
+		return DevNull()
 	
 	def report(self, stream):
 		"""report on all registered failures and errors"""
@@ -56,11 +92,6 @@ class RedNose(nose.plugins.Plugin):
 		
 		self._summarize()
 		return False
-
-	def setOutputStream(self, stream):
-		if not isinstance(stream, DevNull):
-			self.stream = stream
-		return DevNull()
 	
 	def _summarize(self):
 		"""summarize all tests - the number of failures, errors and successes"""
@@ -184,6 +215,3 @@ class RedNose(nose.plugins.Plugin):
 		"""
 		self._outln(color(char * line_length))
 
-
-#TODO: care about verbose setting
-# useful: http://somethingaboutorange.com/mrl/projects/nose/doc/plugin_interface.html
