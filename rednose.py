@@ -44,24 +44,67 @@ class RedNose(nose.plugins.Plugin):
 		self.success += 1
 		self._print_test('.', green)
 	
-	def _out(self, msg='', newline=False):
-		self.stream.write(msg)
-		if newline:
-			self.stream.write('\n')
+	def report(self, stream):
+		"""report on all registered failures and errors"""
+		self._outln()
+		report_num = 0
+		if len(self.reports) > 0:
+			for report in self.reports:
+				report_num += 1
+				self._report_test(report_num, *report)
+			self._outln()
+		
+		self._summarize()
+		return False
 
-	def _outln(self, msg=''):
-		self._out(msg, True)
+	def setOutputStream(self, stream):
+		if not isinstance(stream, DevNull):
+			self.stream = stream
+		return DevNull()
 	
-	def _plural(self, num):
-		return '' if num == 1 else 's'
+	def _summarize(self):
+		"""summarize all tests - the number of failures, errors and successes"""
+		self._line(black)
+		self._out("%s reports run" % self.total)
+		if self.total == self.success:
+			self._out(" successfully")
+		else:
+			self._outln(". ")
+			if self.failure > 0:
+				self._out(red("%s FAILED%s" % (
+					self.failure,
+					self._plural(self.failure) )))
+				if self.error > 0:
+					self._out(", ")
+			if self.error > 0:
+				self._out(yellow("%s error%s" % (
+					self.error,
+					self._plural(self.error) )))
+			self._out(green(" (%s test%s passed)" % (
+				self.success,
+				self._plural(self.success) )))
+		self._outln()
 	
-	def _line(self, color=reset, char='-'):
-		"""
-		print a line of separator characters (default '-')
-		in the given colour (default black)
-		"""
-		self._outln(color(char * line_length))
-	
+	def _report_test(self, report_num, type_, test, err):
+		"""report the results of a single (failing or errored) test"""
+		self._line(black)
+		self._out("%s) " % (report_num))
+		if type_ == failure:
+			color = red
+			self._outln(color('FAIL: %s' % (test,)))
+		else:
+			color = yellow
+			self._outln(color('ERROR: %s' % (test,)))
+		
+		exc_type, exc_instance, exc_trace = err
+		
+			
+		self._outln()
+		self._outln(self._fmt_traceback(exc_trace))
+		self._out(color('   ', bold(color(exc_type.__name__)), ": "))
+		self._outln(self._fmt_message(exc_instance, color))
+		self._outln()
+		
 	def _relative_path(self, path):
 		"""
 		If path is a child of the current working directory, the relative
@@ -123,67 +166,23 @@ class RedNose(nose.plugins.Plugin):
 			message_lines.append(color(line) if color is not None else line)
 		return '\n'.join(message_lines)
 
+	def _out(self, msg='', newline=False):
+		self.stream.write(msg)
+		if newline:
+			self.stream.write('\n')
+
+	def _outln(self, msg=''):
+		self._out(msg, True)
 	
-	def _report_test(self, report_num, type_, test, err):
-		"""report the results of a single (failing or errored) test"""
-		self._line(black)
-		self._out("%s) " % (report_num))
-		if type_ == failure:
-			color = red
-			self._outln(color('FAIL: %s' % (test,)))
-		else:
-			color = yellow
-			self._outln(color('ERROR: %s' % (test,)))
-		
-		exc_type, exc_instance, exc_trace = err
-		
-			
-		self._outln()
-		self._outln(self._fmt_traceback(exc_trace))
-		self._out(color('   ', bold(color(exc_type.__name__)), ": "))
-		self._outln(self._fmt_message(exc_instance, color))
-		self._outln()
+	def _plural(self, num):
+		return '' if num == 1 else 's'
 	
-	def report(self, stream):
-		"""report on all registered failures and errors"""
-		self._outln()
-		report_num = 0
-		if len(self.reports) > 0:
-			for report in self.reports:
-				report_num += 1
-				self._report_test(report_num, *report)
-			self._outln()
-		
-		self._summarize()
-		return False
-	
-	def _summarize(self):
-		"""summarize all tests - the number of failures, errors and successes"""
-		self._line(black)
-		self._out("%s reports run" % self.total)
-		if self.total == self.success:
-			self._out(" successfully")
-		else:
-			self._outln(". ")
-			if self.failure > 0:
-				self._out(red("%s FAILED%s" % (
-					self.failure,
-					self._plural(self.failure) )))
-				if self.error > 0:
-					self._out(", ")
-			if self.error > 0:
-				self._out(yellow("%s error%s" % (
-					self.error,
-					self._plural(self.error) )))
-			self._out(green(" (%s test%s passed)" % (
-				self.success,
-				self._plural(self.success) )))
-		self._outln()
-		
-	def setOutputStream(self, stream):
-		if not isinstance(stream, DevNull):
-			self.stream = stream
-		return DevNull()
+	def _line(self, color=reset, char='-'):
+		"""
+		print a line of separator characters (default '-')
+		in the given colour (default black)
+		"""
+		self._outln(color(char * line_length))
 
 
 #TODO: care about verbose setting
