@@ -143,7 +143,7 @@ class RedNose(nose.plugins.Plugin):
 	def _summarize(self):
 		"""summarize all tests - the number of failures, errors and successes"""
 		self._line(black)
-		self._out("%s reports run (in %0.1f seconds)" % (self.total, time.time() - self.start_time))
+		self._out("%s reports run in %0.1f seconds" % (self.total, time.time() - self.start_time))
 		if self.total > self.success:
 			self._outln(". ")
 			if self.failure > 0:
