@@ -3,11 +3,12 @@
 from setuptools import *
 setup(
 	name='rednose',
-	version='0.1',
-	author_email='tim3d.junk+termstyle@gmail.com',
+	version='0.1.1',
+	author_email='tim3d.junk+rednose@gmail.com',
 	author='Tim Cuthbertson',
 	url='http://github.com/gfxmonk/rednose/tree',
 	description="coloured output for nosetests",
+	long_description=file.read(open('readme.rst')),
 	packages = find_packages(),
 	entry_points = {
 		'nose.plugins.0.10': ['rednose = rednose:RedNose']
@@ -20,7 +21,7 @@ setup(
 		"Topic :: Software Development :: Libraries :: Python Modules",
 		"Topic :: Software Development :: Testing",
 	],
-	keywords='console ansi color colour terminal xterm',
+	keywords='test nosetests nose nosetest output colour console',
 	license='BSD',
 	install_requires=[
 		'setuptools',
