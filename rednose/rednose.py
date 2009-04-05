@@ -39,9 +39,10 @@ import nose
 
 from termstyle import *
 
-failure = 'fail'
-error = 'error'
-success = 'success'
+failure = 'FAILED'
+error = 'ERROR'
+success = 'passed'
+skip = 'skipped'
 line_length = 77
 
 class DevNull(object):
@@ -52,7 +53,7 @@ class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
 	env_opt_color = 'NOSE_REDNOSE_COLOR'
 	reports = []
-	error = success = failure = 0
+	error = success = failure = skip = 0
 	total = 0
 	stream = None
 	verbose = False
@@ -84,29 +85,32 @@ class RedNose(nose.plugins.Plugin):
 	
 	def begin(self):
 		self.start_time = time.time()
+		self._in_test = False
 	
 	def beforeTest(self, test):
+		if self._in_test:
+			self.addSkip()
+		self._in_test = True
 		if self.verbose:
 			self._out(str(test) + ' ... ')
 	
 	def _print_test(self, type_, color):
 		self.total += 1
-		if type_ == failure:
-			short_ = 'F'
-			long_ = 'FAILED'
-		elif type_ == error:
-			short_ = 'X'
-			long_ = 'ERROR'
-		else:
-			short_ = '.'
-			long_ = 'passed'
-
 		if self.verbose:
-			self._outln(color(long_))
+			self._outln(color(type_))
 		else:
+			if type_ == failure:
+				short_ = 'F'
+			elif type_ == error:
+				short_ = 'X'
+			elif type_ == skip:
+				short_ = '-'
+			else:
+				short_ = '.'
 			self._out(color(short_))
 			if self.total % line_length == 0:
 				self._outln()
+		self._in_test = False
 		
 	def addFailure(self, test, err):
 		self.failure += 1
@@ -114,6 +118,9 @@ class RedNose(nose.plugins.Plugin):
 		self._print_test(failure, red)
 	
 	def addError(self, test, err):
+		if err[0].__name__ == 'SkipTest':
+			self.addSkip(test, err)
+			return
 		self.error += 1
 		self.reports.append((error, test, err))
 		self._print_test(error, yellow)
@@ -121,6 +128,10 @@ class RedNose(nose.plugins.Plugin):
 	def addSuccess(self, test):
 		self.success += 1
 		self._print_test(success, green)
+	
+	def addSkip(self, test=None, err=None):
+		self.skip += 1
+		self._print_test(skip, blue)
 
 	def setOutputStream(self, stream):
 		if not isinstance(stream, DevNull):
@@ -149,16 +160,20 @@ class RedNose(nose.plugins.Plugin):
 			time.time() - self.start_time))
 		if self.total > self.success:
 			self._outln(". ")
+			additionals = []
 			if self.failure > 0:
-				self._out(red("%s FAILED%s" % (
+				additionals.append(red("%s FAILED%s" % (
 					self.failure,
 					self._plural(self.failure) )))
-				if self.error > 0:
-					self._out(", ")
 			if self.error > 0:
-				self._out(yellow("%s error%s" % (
+				additionals.append(yellow("%s error%s" % (
 					self.error,
 					self._plural(self.error) )))
+			if self.skip > 0:
+				additionals.append(blue("%s skipped" % (
+					self.skip)))
+			self._out(', '.join(additionals))
+				
 		self._out(green(" (%s test%s passed)" % (
 			self.success,
 			self._plural(self.success) )))
@@ -235,6 +250,8 @@ class RedNose(nose.plugins.Plugin):
 	def _fmt_message(self, exception, color):
 		orig_message_lines = str(exception).splitlines()
 
+		if len(orig_message_lines) == 0:
+			return ''
 		message_lines = [color(orig_message_lines[0])]
 		for line in orig_message_lines[1:]:
 			match = re.match('^---.* begin captured stdout.*----$', line)
