@@ -162,9 +162,8 @@ class RedNose(nose.plugins.Plugin):
 			self._outln(". ")
 			additionals = []
 			if self.failure > 0:
-				additionals.append(red("%s FAILED%s" % (
-					self.failure,
-					self._plural(self.failure) )))
+				additionals.append(red("%s FAILED" % (
+					self.failure,)))
 			if self.error > 0:
 				additionals.append(yellow("%s error%s" % (
 					self.error,
