@@ -48,6 +48,7 @@ line_length = 77
 class DevNull(object):
 	def write(self, msg): pass
 	def writeln(self, msg=''): pass
+	def flush(self): pass
 	
 class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
