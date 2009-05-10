@@ -53,13 +53,17 @@ class DevNull(object):
 class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
 	env_opt_color = 'NOSE_REDNOSE_COLOR'
-	reports = []
-	error = success = failure = skip = 0
-	total = 0
-	stream = None
-	verbose = False
-	enabled = False
 	score = 600
+	
+	def __init__(self, *args):
+		super(type(self), self).__init__(*args)
+		self.reports = []
+		self.error = self.success = self.failure = self.skip = 0
+		self.total = 0
+		self.stream = None
+		self.verbose = False
+		self.enabled = False
+		
 	
 	def options(self, parser, env=os.environ):
 		parser.add_option(
