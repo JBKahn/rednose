@@ -78,6 +78,8 @@ class RedNose(nose.plugins.Plugin):
 	def configure(self, options, conf):
 		if options.rednose:
 			self.enabled = True
+		else:
+			return
 		color_mode = options.rednose_color
 		auto() # enable colours if stdout is a tty
 		if color_mode:
