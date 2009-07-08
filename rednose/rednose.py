@@ -94,13 +94,21 @@ class RedNose(nose.plugins.Plugin):
 		self.start_time = time.time()
 		self._in_test = False
 	
+	def _format_test_name(self, test):
+		desc = test.test.shortDescription()
+		if desc:
+			desc = "%s [%s]" % (test, desc)
+		else:
+			desc = str(test)
+		return desc
+		
 	def beforeTest(self, test):
 		if self._in_test:
 			self.addSkip()
 		self._in_test = True
 		if self.verbose:
-			self._out(str(test) + ' ... ')
-	
+			self._out(self._format_test_name(test) + ' ... ')
+
 	def _print_test(self, type_, color):
 		self.total += 1
 		if self.verbose:
@@ -191,10 +199,10 @@ class RedNose(nose.plugins.Plugin):
 		self._out("%s) " % (report_num))
 		if type_ == failure:
 			color = red
-			self._outln(color('FAIL: %s' % (test,)))
+			self._outln(color('FAIL: %s' % (self._format_test_name(test),)))
 		else:
 			color = yellow
-			self._outln(color('ERROR: %s' % (test,)))
+			self._outln(color('ERROR: %s' % (self._format_test_name(test),)))
 		
 		exc_type, exc_instance, exc_trace = err
 		

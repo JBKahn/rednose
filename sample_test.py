@@ -17,5 +17,9 @@ class SomeTest(unittest.TestCase):
 	def test_skip(self):
 		import nose
 		raise nose.SkipTest
+	
+	def test_with_long_description(self):
+		"""It's got a long description, you see?"""
+		self.fail()
 
 
