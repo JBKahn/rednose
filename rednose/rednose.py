@@ -81,7 +81,11 @@ class RedNose(nose.plugins.Plugin):
 		else:
 			return
 		color_mode = options.rednose_color
-		auto() # enable colours if stdout is a tty
+		try:
+			auto() # enable colours if stdout is a tty
+		except TypeError: # happens when stdout is closed - rednose is not much good when that happens
+			self.enabled = False
+			return
 		if color_mode:
 			color_mode = color_mode.lower()
 			if color_mode == 'on':
