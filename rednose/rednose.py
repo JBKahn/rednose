@@ -1,5 +1,4 @@
-# Copyright (c) 2009, Tim Cuthbertson 
-# All rights reserved.
+# Copyright (c) 2009, Tim Cuthbertson # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -99,13 +98,8 @@ class RedNose(nose.plugins.Plugin):
 		self._in_test = False
 	
 	def _format_test_name(self, test):
-		desc = test.test.shortDescription()
-		if desc:
-			desc = "%s [%s]" % (test, desc)
-		else:
-			desc = str(test)
-		return desc
-		
+		return test.test.shortDescription() or str(test)
+	
 	def beforeTest(self, test):
 		if self._in_test:
 			self.addSkip()
