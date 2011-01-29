@@ -61,7 +61,7 @@ class RedNose(nose.plugins.Plugin):
 	def options(self, parser, env=os.environ):
 		parser.add_option(
 			"--rednose", action="store_true",
-			default=env.get(self.env_opt, 'on') == 'on', dest="rednose",
+			default=bool(env.get(self.env_opt, False)), dest="rednose",
 			help="enable colour output")
 		parser.add_option(
 			"--no-color", action="store_false",
