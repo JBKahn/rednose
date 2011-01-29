@@ -218,8 +218,11 @@ class RedNose(nose.plugins.Plugin):
 		path is returned surrounded by bold xterm escape sequences.
 		If path is not a child of the working directory, path is returned
 		"""
-		here = os.path.abspath(os.path.realpath(os.getcwd()))
-		fullpath = os.path.abspath(os.path.realpath(path))
+		try:
+			here = os.path.abspath(os.path.realpath(os.getcwd()))
+			fullpath = os.path.abspath(os.path.realpath(path))
+		except OSError:
+			return path
 		if fullpath.startswith(here):
 			return termstyle.bold(fullpath[len(here)+1:])
 		return path
