@@ -8,7 +8,7 @@ except StandardError:
 from setuptools import *
 setup(
 	name='rednose',
-	version='0.1.5',
+	version='0.2',
 	author_email='tim3d.junk+rednose@gmail.com',
 	author='Tim Cuthbertson',
 	url='http://github.com/gfxmonk/rednose/tree',
@@ -29,6 +29,7 @@ setup(
 	keywords='test nosetests nose nosetest output colour console',
 	license='BSD',
 	install_requires=[
+		'termstyle >= 0.1.7',
 		'setuptools',
 	],
 )

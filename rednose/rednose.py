@@ -36,7 +36,7 @@ import time
 
 import nose
 
-from termstyle import *
+import termstyle
 
 failure = 'FAILED'
 error = 'ERROR'
@@ -44,62 +44,56 @@ success = 'passed'
 skip = 'skipped'
 line_length = 77
 
-class DevNull(object):
-	def write(self, msg): pass
-	def writeln(self, msg=''): pass
-	def flush(self): pass
-	
 class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
-	env_opt_color = 'NOSE_REDNOSE_COLOR'
 	score = 600
 	
 	def __init__(self, *args):
-		super(type(self), self).__init__(*args)
+		super(RedNose, self).__init__(*args)
 		self.reports = []
 		self.error = self.success = self.failure = self.skip = 0
 		self.total = 0
 		self.stream = None
 		self.verbose = False
 		self.enabled = False
-		
+		self.tree = False
 	
 	def options(self, parser, env=os.environ):
 		parser.add_option(
 			"--rednose", action="store_true",
-			default=env.get(self.env_opt), dest="rednose",
-			help="More readable (and pretty!) coloured output")
+			default=env.get(self.env_opt, 'on') == 'on', dest="rednose",
+			help="enable colour output")
 		parser.add_option(
-			"--rednose-color", action="store", type="string",
-			default=env.get(self.env_opt_color), dest="rednose_color",
-			help="enable/disable rednose colour (on|off|auto)")
+			"--no-color", action="store_false",
+			dest="rednose",
+			help="disable colour output")
+		parser.add_option(
+			"--force-color", action="store_true",
+			default=False,
+			help="force colour output when not using a TTY")
+		parser.add_option(
+			"--immediate", action="store_true",
+			default=False,
+			help="print errors and failures as they happen, as well as at the end")
 
 	def configure(self, options, conf):
 		if options.rednose:
 			self.enabled = True
-		else:
-			return
-		color_mode = options.rednose_color
-		try:
-			auto() # enable colours if stdout is a tty
-		except TypeError: # happens when stdout is closed - rednose is not much good when that happens
-			self.enabled = False
-			return
-		if color_mode:
-			color_mode = color_mode.lower()
-			if color_mode == 'on':
-				enable()
-			elif color_mode == 'off':
-				disable()
-		self.verbose = options.verbosity >= 2
+			(termstyle.enable if options.force_color else termstyle.auto)()
+			self.immediate = options.immediate
+			self.verbose = options.verbosity >= 2
 	
 	def begin(self):
 		self.start_time = time.time()
 		self._in_test = False
 	
 	def _format_test_name(self, test):
-		return test.test.shortDescription() or str(test)
+		return test.shortDescription() or str(test)
 	
+	def prepareTestResult(self, result):
+		import unittest
+		result.stream = unittest._WritelnDecorator(open(os.devnull, 'w'))
+
 	def beforeTest(self, test):
 		if self._in_test:
 			self.addSkip()
@@ -125,39 +119,46 @@ class RedNose(nose.plugins.Plugin):
 				self._outln()
 		self._in_test = False
 		
+	def _add_report(self, report):
+		failure_type, test, err = report
+		self.reports.append(report)
+		if self.immediate:
+			self._outln()
+			self._report_test(len(self.reports), *report)
+
 	def addFailure(self, test, err):
 		self.failure += 1
-		self.reports.append((failure, test, err))
-		self._print_test(failure, red)
+		self._add_report((failure, test, err))
+		self._print_test(failure, termstyle.red)
 	
 	def addError(self, test, err):
 		if err[0].__name__ == 'SkipTest':
 			self.addSkip(test, err)
 			return
 		self.error += 1
-		self.reports.append((error, test, err))
-		self._print_test(error, yellow)
+		self._add_report((error, test, err))
+		self._print_test(error, termstyle.yellow)
 		
 	def addSuccess(self, test):
 		self.success += 1
-		self._print_test(success, green)
+		self._print_test(success, termstyle.green)
 	
 	def addSkip(self, test=None, err=None):
 		self.skip += 1
-		self._print_test(skip, blue)
+		self._print_test(skip, termstyle.blue)
 
 	def setOutputStream(self, stream):
-		if not isinstance(stream, DevNull):
-			self.stream = stream
-		return DevNull()
+		self.stream = stream
 	
 	def report(self, stream):
 		"""report on all registered failures and errors"""
 		self._outln()
+		if self.immediate:
+			for x in range(0,5):
+				self._outln()
 		report_num = 0
 		if len(self.reports) > 0:
-			for report in self.reports:
-				report_num += 1
+			for report_num, report in enumerate(self.reports, 1):
 				self._report_test(report_num, *report)
 			self._outln()
 		
@@ -166,7 +167,7 @@ class RedNose(nose.plugins.Plugin):
 	
 	def _summarize(self):
 		"""summarize all tests - the number of failures, errors and successes"""
-		self._line(black)
+		self._line(termstyle.black)
 		self._out("%s test%s run in %0.1f seconds" % (
 			self.total,
 			self._plural(self.total),
@@ -175,31 +176,31 @@ class RedNose(nose.plugins.Plugin):
 			self._outln(". ")
 			additionals = []
 			if self.failure > 0:
-				additionals.append(red("%s FAILED" % (
+				additionals.append(termstyle.red("%s FAILED" % (
 					self.failure,)))
 			if self.error > 0:
-				additionals.append(yellow("%s error%s" % (
+				additionals.append(termstyle.yellow("%s error%s" % (
 					self.error,
 					self._plural(self.error) )))
 			if self.skip > 0:
-				additionals.append(blue("%s skipped" % (
+				additionals.append(termstyle.blue("%s skipped" % (
 					self.skip)))
 			self._out(', '.join(additionals))
 				
-		self._out(green(" (%s test%s passed)" % (
+		self._out(termstyle.green(" (%s test%s passed)" % (
 			self.success,
 			self._plural(self.success) )))
 		self._outln()
 	
 	def _report_test(self, report_num, type_, test, err):
 		"""report the results of a single (failing or errored) test"""
-		self._line(black)
+		self._line(termstyle.black)
 		self._out("%s) " % (report_num))
 		if type_ == failure:
-			color = red
+			color = termstyle.red
 			self._outln(color('FAIL: %s' % (self._format_test_name(test),)))
 		else:
-			color = yellow
+			color = termstyle.yellow
 			self._outln(color('ERROR: %s' % (self._format_test_name(test),)))
 		
 		exc_type, exc_instance, exc_trace = err
@@ -207,10 +208,10 @@ class RedNose(nose.plugins.Plugin):
 			
 		self._outln()
 		self._outln(self._fmt_traceback(exc_trace))
-		self._out(color('   ', bold(color(exc_type.__name__)), ": "))
+		self._out(color('   ', termstyle.bold(color(exc_type.__name__)), ": "))
 		self._outln(self._fmt_message(exc_instance, color))
 		self._outln()
-		
+	
 	def _relative_path(self, path):
 		"""
 		If path is a child of the current working directory, the relative
@@ -220,7 +221,7 @@ class RedNose(nose.plugins.Plugin):
 		here = os.path.abspath(os.path.realpath(os.getcwd()))
 		fullpath = os.path.abspath(os.path.realpath(path))
 		if fullpath.startswith(here):
-			return bold(fullpath[len(here)+1:])
+			return termstyle.bold(fullpath[len(here)+1:])
 		return path
 	
 	def _file_line(self, tb):
@@ -242,15 +243,15 @@ class RedNose(nose.plugins.Plugin):
 		line_contents = linecache.getline(filename, lineno, f.f_globals).strip()
 
 		return "    %s line %s in %s\n      %s" % (
-			blue(prefix, self._relative_path(filename)),
+			termstyle.blue(prefix, self._relative_path(filename)),
 			lineno,
-			cyan(function_name),
+			termstyle.cyan(function_name),
 			line_contents)
 	
 	def _fmt_traceback(self, trace):
 		"""format a traceback"""
 		ret = []
-		ret.append(black("   Traceback (most recent call last):"))
+		ret.append(termstyle.black("   Traceback (most recent call last):"))
 		current_trace = trace
 		while current_trace is not None:
 			line = self._file_line(current_trace)
@@ -285,7 +286,7 @@ class RedNose(nose.plugins.Plugin):
 	def _plural(self, num):
 		return '' if num == 1 else 's'
 	
-	def _line(self, color=reset, char='-'):
+	def _line(self, color=termstyle.reset, char='-'):
 		"""
 		print a line of separator characters (default '-')
 		in the given colour (default black)
