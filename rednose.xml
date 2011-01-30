@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet type='text/xsl' href='interface.xsl'?>
+<interface uri="http://gfxmonk.net/dist/0install/rednose.xml" xmlns="http://zero-install.sourceforge.net/2004/injector/interface" xmlns:nosetests="http://gfxmonk.net/dist/0install/nosetests">
+	<name>rednose</name>
+	<summary>coloured output for nosetests</summary>
+	<description>
+=========
+rednose
+=========
+
+rednose is a `nosetests`_
+plugin for adding colour (and readability) to nosetest console results.
+
+Installation:
+-------------
+::
+
+	easy_install rednose
+	
+or from the source::
+
+	./setup.py develop
+
+Usage:
+------
+::
+
+	nosetests --rednose
+
+or::
+
+	export NOSE_REDNOSE=1
+	nosetests
+
+Rednose by default uses auto-colouring, which will only use
+colour if you're running it on a terminal (i.e not piping it
+to a file). To control colouring, use one of::
+
+	nosetests --rednose --force-color
+	nosetests --no-color
+
+(you can also set this in the environment variable NOSE_REDNOSE_COLOR)
+
+.. _nosetests: http://somethingaboutorange.com/mrl/projects/nose/
+	</description>
+	<rich-description xmlns="http://gfxmonk.net/dist/0install">
+		<div xmlns="http://www.w3.org/1999/xhtml">
+			<div id="rednose">
+				<h1>rednose</h1>
+				<p>rednose is a <a href="http://somethingaboutorange.com/mrl/projects/nose/">nosetests</a> plugin for adding colour (and readability) to nosetest console results.</p>
+				<div id="installation:">
+					<h2>Installation:</h2>
+					<pre><code>easy_install rednose
+</code></pre>
+					<p>or from the source:</p>
+					<pre><code>./setup.py develop
+</code></pre>
+				</div>
+				<div id="usage:">
+					<h2>Usage:</h2>
+					<pre><code>nosetests --rednose
+</code></pre>
+					<p>or:</p>
+					<pre><code>export NOSE_REDNOSE=1
+nosetests
+</code></pre>
+					<p>Rednose by default uses auto-colouring, which will only use colour if you're running it on a terminal (i.e not piping it to a file). To control colouring, use one of:</p>
+					<pre><code>nosetests --rednose --force-color
+nosetests --no-color
+</code></pre>
+					<p>(you can also set this in the environment variable NOSE_REDNOSE_COLOR)</p>
+				</div>
+			</div>
+		</div>
+	</rich-description>
+	<group nosetests:plugin="rednose:Rednose">
+		<environment name="NOSETESTS_PLUGINS" value="rednose/RedNose"/>
+		<environment insert="" name="PYTHONPATH"/>
+		<command name="run">
+			<runner interface="http://gfxmonk.net/dist/0install/nosetests-plugin-resolver.xml"/>
+		</command>
+		<requires interface="http://gfxmonk.net/dist/0install/python-termstyle.xml">
+			<version not-before="0.1.7"/>
+		</requires>
+		<implementation id="sha1new=32575e1a6400861b553f094acf96931a56b153ac" released="2011-01-30" version="0.2.1">
+			<manifest-digest sha256="3a2714e3a75645693cc601cf4b89e90cb0fc71d759818efa846d13a773be3421"/>
+			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.2.1.tgz" size="9531"/>
+		</implementation>
+	</group>
+</interface>

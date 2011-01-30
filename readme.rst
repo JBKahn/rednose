@@ -2,7 +2,7 @@
 rednose
 =========
 
-rednose is a `nosetests <http://somethingaboutorange.com/mrl/projects/nose/>`
+rednose is a `nosetests`_
 plugin for adding colour (and readability) to nosetest console results.
 
 Installation:
@@ -23,15 +23,16 @@ Usage:
 
 or::
 
-	export NOSE_REDNOSE=1 # you can put this in your .profile, .bashrc or similar
+	export NOSE_REDNOSE=1
 	nosetests
 
-Nose by default uses auto-colouring, which will only use colour if you're running it on a terminal
-(i.e not piping it to a file). To control colouring, use one of::
+Rednose by default uses auto-colouring, which will only use
+colour if you're running it on a terminal (i.e not piping it
+to a file). To control colouring, use one of::
 
-	nosetests --rednose-color=off
-	nosetests --rednose-color=on
-	nosetests --rednose-color=auto
+	nosetests --rednose --force-color
+	nosetests --no-color
 
 (you can also set this in the environment variable NOSE_REDNOSE_COLOR)
 
+.. _nosetests: http://somethingaboutorange.com/mrl/projects/nose/
