@@ -91,7 +91,10 @@ class RedNose(nose.plugins.Plugin):
 		return test.shortDescription() or str(test)
 	
 	def prepareTestResult(self, result):
-		import unittest
+		try:
+			from unittest.runner import _WritelnDecorator # Python 2.7
+		except ImportError:
+			from unittest import _WritelnDecorator
 		result.stream = unittest._WritelnDecorator(open(os.devnull, 'w'))
 
 	def beforeTest(self, test):
