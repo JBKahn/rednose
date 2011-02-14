@@ -95,7 +95,7 @@ class RedNose(nose.plugins.Plugin):
 			from unittest.runner import _WritelnDecorator # Python 2.7
 		except ImportError:
 			from unittest import _WritelnDecorator
-		result.stream = unittest._WritelnDecorator(open(os.devnull, 'w'))
+		result.stream = _WritelnDecorator(open(os.devnull, 'w'))
 
 	def beforeTest(self, test):
 		if self._in_test:
