@@ -8,7 +8,7 @@ except StandardError:
 from setuptools import *
 setup(
 	name='rednose',
-	version='0.2.1',
+	version='0.2.2',
 	author_email='tim3d.junk+rednose@gmail.com',
 	author='Tim Cuthbertson',
 	url='http://github.com/gfxmonk/rednose/tree',
