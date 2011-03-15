@@ -1,3 +1,4 @@
+from __future__ import print_function
 import unittest
 
 def delay_fail(f):
@@ -5,7 +6,7 @@ def delay_fail(f):
 
 class SomeTest(unittest.TestCase):
 	def test_fail(self):
-		print "oh noes, it's gonna blow!"
+		print("oh noes, it's gonna blow!")
 		delay_fail(lambda: self.fail('no dice'))
 	
 	def test_success(self):

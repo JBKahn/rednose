@@ -2,7 +2,7 @@
 
 try:
 	desc = file.read(open('readme.rst'))
-except StandardError:
+except Exception:
 	desc = 'see readme.rst'
 
 from setuptools import *
@@ -21,6 +21,7 @@ setup(
 	classifiers=[
 		"License :: OSI Approved :: BSD License",
 		"Programming Language :: Python",
+		"Programming Language :: Python :: 3",
 		"Development Status :: 4 - Beta",
 		"Intended Audience :: Developers",
 		"Topic :: Software Development :: Libraries :: Python Modules",
