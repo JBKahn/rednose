@@ -28,8 +28,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
-import sys
-import traceback
 import linecache
 import re
 import time
