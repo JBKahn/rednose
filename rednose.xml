@@ -43,6 +43,19 @@ to a file). To control colouring, use one of::
 
 .. _nosetests: http://somethingaboutorange.com/mrl/projects/nose/
 	</description>
+	<pypi-extra xmlns="http://gfxmonk.net/dist/0install"><![CDATA[
+	classifiers=[
+		"License :: OSI Approved :: BSD License",
+		"Programming Language :: Python",
+		"Programming Language :: Python :: 3",
+		"Development Status :: 4 - Beta",
+		"Intended Audience :: Developers",
+		"Topic :: Software Development :: Libraries :: Python Modules",
+		"Topic :: Software Development :: Testing",
+	],
+	keywords='test nosetests nose nosetest output colour console',
+	license='BSD',
+		]]></pypi-extra>
 	<rich-description xmlns="http://gfxmonk.net/dist/0install">
 		<div xmlns="http://www.w3.org/1999/xhtml">
 			<div id="rednose">
