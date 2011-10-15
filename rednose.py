@@ -257,7 +257,7 @@ class RedNose(nose.plugins.Plugin):
 	def _fmt_traceback(self, trace):
 		"""format a traceback"""
 		ret = []
-		ret.append(termstyle.black("   Traceback (most recent call last):"))
+		ret.append(termstyle.default("   Traceback (most recent call last):"))
 		current_trace = trace
 		while current_trace is not None:
 			line = self._file_line(current_trace)
