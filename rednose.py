@@ -58,19 +58,23 @@ class RedNose(nose.plugins.Plugin):
 		self.tree = False
 	
 	def options(self, parser, env=os.environ):
+		rednose_on = bool(env.get(self.env_opt, False))
+		rednose_color = env.get(self.env_opt_color, 'auto')
+
 		parser.add_option(
 			"--rednose", action="store_true",
-			default=bool(env.get(self.env_opt, False)), dest="rednose",
-			help="enable colour output")
+			default=rednose_on, dest="rednose",
+			help="enable colour output (alternatively, set $%s=1)" % (self.env_opt,))
 		parser.add_option(
 			"--no-color", action="store_false",
-			default=(True if env.get(self.env_opt_color) == 'no' else False),
 			dest="rednose",
 			help="disable colour output")
 		parser.add_option(
-			"--force-color", action="store_true",
-			default=(True if env.get(self.env_opt_color) == 'force' else False),
-			help="force colour output when not using a TTY")
+			"--force-color", action="store_const",
+			dest='rednose_color',
+			default=rednose_color,
+			const='force',
+			help="force colour output when not using a TTY (alternatively, set $%s=force)" % (self.env_opt_color,))
 		parser.add_option(
 			"--immediate", action="store_true",
 			default=False,
@@ -79,7 +83,12 @@ class RedNose(nose.plugins.Plugin):
 	def configure(self, options, conf):
 		if options.rednose:
 			self.enabled = True
-			(termstyle.enable if options.force_color else termstyle.auto)()
+			termstyle_init = {
+				'force': termstyle.enable,
+				'off': termstyle.disable
+			}.get(options.rednose_color, termstyle.auto)
+			termstyle_init()
+
 			self.immediate = options.immediate
 			self.verbose = options.verbosity >= 2
 	
