@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <?xml-stylesheet type='text/xsl' href='interface.xsl'?>
-<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface" xmlns:nosetests="http://gfxmonk.net/dist/0install/nosetests" uri="http://gfxmonk.net/dist/0install/rednose.xml">
+<interface uri="http://gfxmonk.net/dist/0install/rednose.xml" xmlns="http://zero-install.sourceforge.net/2004/injector/interface" xmlns:nosetests="http://gfxmonk.net/dist/0install/nosetests">
 	<name>rednose</name>
 	<summary>coloured output for nosetests</summary>
 	<description>
@@ -61,32 +61,22 @@ to a file). To control colouring, use one of::
 			<h1 id="rednose">rednose</h1>
 			<p>rednose is a <a href="http://somethingaboutorange.com/mrl/projects/nose/">nosetests</a> plugin for adding colour (and readability) to nosetest console results.</p>
 			<h2 id="installation">Installation:</h2>
-			<pre>
-				<code>easy_install rednose
-</code>
-			</pre>
+			<pre><code>easy_install rednose
+</code></pre>
 			<p>or from the source:</p>
-			<pre>
-				<code>./setup.py develop
-</code>
-			</pre>
+			<pre><code>./setup.py develop
+</code></pre>
 			<h2 id="usage">Usage:</h2>
-			<pre>
-				<code>nosetests --rednose
-</code>
-			</pre>
+			<pre><code>nosetests --rednose
+</code></pre>
 			<p>or:</p>
-			<pre>
-				<code>export NOSE_REDNOSE=1
+			<pre><code>export NOSE_REDNOSE=1
 nosetests
-</code>
-			</pre>
+</code></pre>
 			<p>Rednose by default uses auto-colouring, which will only use colour if you're running it on a terminal (i.e not piping it to a file). To control colouring, use one of:</p>
-			<pre>
-				<code>nosetests --rednose --force-color
+			<pre><code>nosetests --rednose --force-color
 nosetests --no-color
-</code>
-			</pre>
+</code></pre>
 			<p>(you can also control this by setting the environment variable NOSE_REDNOSE_COLOR to 'force' or 'no')</p>
 		</div>
 	</rich-description>
@@ -119,6 +109,10 @@ nosetests --no-color
 		<implementation id="sha1new=2a6d0422b43e8662f5704dc1afcd6711a9a2fa68" released="2011-08-08" version="0.2.5">
 			<manifest-digest sha256="88b38f2ddb0dc32063fb2d0688b4027f706dbb94fd0a8babe98c315f3c116a2d"/>
 			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.2.5.tgz" size="4448"/>
+		</implementation>
+		<implementation id="sha1new=4b550ab1a44e99c13b2188975bb43610f31930e6" released="2011-12-04" version="0.2.6">
+			<manifest-digest sha256="161330d4b8a3bfdaf112eacf7b2bd38655efdfdd4f08a677fdd1d0a9c1f8664b"/>
+			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.2.6.tgz" size="4525"/>
 		</implementation>
 	</group>
 </interface>
