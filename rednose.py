@@ -45,7 +45,7 @@ line_length = 77
 class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
 	env_opt_color = 'NOSE_REDNOSE_COLOR'
-	score = 600
+	score = 199 # just under the `coverage` module
 	
 	def __init__(self, *args):
 		super(RedNose, self).__init__(*args)
