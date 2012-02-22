@@ -42,6 +42,12 @@ success = 'passed'
 skip = 'skipped'
 line_length = 77
 
+BLACKLISTED_WRITERS = [
+	'nose[\\/]result\\.pyc?$',
+	'unittest[\\/]runner\\.pyc?$'
+]
+REDNOSE_DEBUG = False
+
 class RedNose(nose.plugins.Plugin):
 	env_opt = 'NOSE_REDNOSE'
 	env_opt_color = 'NOSE_REDNOSE_COLOR'
@@ -58,8 +64,10 @@ class RedNose(nose.plugins.Plugin):
 		self.tree = False
 	
 	def options(self, parser, env=os.environ):
+		global REDNOSE_DEBUG
 		rednose_on = bool(env.get(self.env_opt, False))
 		rednose_color = env.get(self.env_opt_color, 'auto')
+		REDNOSE_DEBUG = bool(env.get('REDNOSE_DEBUG', False))
 
 		parser.add_option(
 			"--rednose", action="store_true",
@@ -100,11 +108,7 @@ class RedNose(nose.plugins.Plugin):
 		return test.shortDescription() or str(test)
 	
 	def prepareTestResult(self, result):
-		try:
-			from unittest.runner import _WritelnDecorator # Python 2.7
-		except ImportError:
-			from unittest import _WritelnDecorator
-		result.stream = _WritelnDecorator(open(os.devnull, 'w'))
+		result.stream = FilteringStream(self.stream, BLACKLISTED_WRITERS)
 
 	def beforeTest(self, test):
 		if self._in_test:
@@ -308,3 +312,47 @@ class RedNose(nose.plugins.Plugin):
 		"""
 		self._outln(color(char * line_length))
 
+import traceback
+import sys
+# A wrapper for a stream that will filter
+# calls to `write` and `writeln` to ignore calls
+# from blacklisted callers
+# (implemented as a regex on their filename, according
+# to traceback.extract_stack())
+#
+# It's super hacky, but there seems to be no other way
+# to suppress nose's default output
+class FilteringStream(object):
+	def __init__(self, stream, excludes):
+		self.__stream = stream
+		self.__excludes = list(map(re.compile, excludes))
+	
+	def __should_filter(self):
+		try:
+			stack = traceback.extract_stack(limit=3)[0]
+			filename = stack[0]
+			pattern_matches_filename = lambda pattern: pattern.search(filename)
+			should_filter = any(map(pattern_matches_filename, self.__excludes))
+			if REDNOSE_DEBUG:
+				print >> sys.stderr, "REDNOSE_DEBUG: got write call from %s, should_filter = %s" % (
+						filename, should_filter)
+			return should_filter
+		except StandardError, e:
+			if REDNOSE_DEBUG:
+				print >> sys.stderr, "\nError in rednose filtering: %s" % (e,)
+				traceback.print_exc(sys.stderr)
+			return False
+
+	def write(self, *a):
+		if self.__should_filter(): return
+		return self.__stream.write(*a)
+
+	def writeln(self, *a):
+		if self.__should_filter(): return
+		return self.__stream.writeln(*a)
+
+	# pass non-known methods through to self.__stream
+	def __getattr__(self, name):
+		if REDNOSE_DEBUG:
+			print >> sys.stderr, "REDNOSE_DEBUG: getting attr %s" % (name,)
+		return getattr(self.__stream, name)
