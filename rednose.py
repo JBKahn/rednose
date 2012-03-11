@@ -111,11 +111,13 @@ class RedNose(nose.plugins.Plugin):
 		result.stream = FilteringStream(self.stream, BLACKLISTED_WRITERS)
 
 	def beforeTest(self, test):
-		if self._in_test:
-			self.addSkip()
 		self._in_test = True
 		if self.verbose:
 			self._out(self._format_test_name(test) + ' ... ')
+	
+	def afterTest(self, test):
+		if self._in_test:
+			self.addSkip()
 
 	def _print_test(self, type_, color):
 		self.total += 1
