@@ -95,7 +95,7 @@ nosetests --no-color
 		<environment name="NOSE_REDNOSE" value="1"/>
 		<environment insert="" name="PYTHONPATH"/>
 		<command name="run">
-			<runner interface="http://gfxmonk.net/dist/0install/nosetests-plugin-resolver.xml"/>
+			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
 		</command>
 		<requires interface="http://gfxmonk.net/dist/0install/python-termstyle.xml">
 			<version not-before="0.1.7"/>

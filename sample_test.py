@@ -1,3 +1,4 @@
+# vim: set fileencoding=utf-8 :
 from __future__ import print_function
 import unittest
 
@@ -14,6 +15,9 @@ class SomeTest(unittest.TestCase):
 	
 	def test_error(self):
 		raise RuntimeError("things went south\nand here's a second line!")
+
+	def test_utf8(self):
+		self.assertEqual(u'café', u'abc')
 	
 	def test_skip(self):
 		import nose
@@ -22,5 +26,4 @@ class SomeTest(unittest.TestCase):
 	def test_with_long_description(self):
 		"""It's got a long description, you see?"""
 		self.fail()
-
 

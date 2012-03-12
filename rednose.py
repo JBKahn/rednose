@@ -27,7 +27,8 @@
 # WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import os
+from __future__ import print_function
+import os, sys
 import linecache
 import re
 import time
@@ -41,6 +42,9 @@ error = 'ERROR'
 success = 'passed'
 skip = 'skipped'
 line_length = 77
+
+PY3 = sys.version_info[0] >= 3
+to_unicode = str if PY3 else unicode
 
 BLACKLISTED_WRITERS = [
 	'nose[\\/]result\\.pyc?$',
@@ -105,7 +109,7 @@ class RedNose(nose.plugins.Plugin):
 		self._in_test = False
 	
 	def _format_test_name(self, test):
-		return test.shortDescription() or str(test)
+		return test.shortDescription() or to_unicode(test)
 	
 	def prepareTestResult(self, result):
 		result.stream = FilteringStream(self.stream, BLACKLISTED_WRITERS)
@@ -282,7 +286,7 @@ class RedNose(nose.plugins.Plugin):
 		return '\n'.join(ret)
 	
 	def _fmt_message(self, exception, color):
-		orig_message_lines = str(exception).splitlines()
+		orig_message_lines = to_unicode(exception).splitlines()
 
 		if len(orig_message_lines) == 0:
 			return ''
@@ -339,9 +343,9 @@ class FilteringStream(object):
 				print >> sys.stderr, "REDNOSE_DEBUG: got write call from %s, should_filter = %s" % (
 						filename, should_filter)
 			return should_filter
-		except StandardError, e:
+		except StandardError as e:
 			if REDNOSE_DEBUG:
-				print >> sys.stderr, "\nError in rednose filtering: %s" % (e,)
+				print("\nError in rednose filtering: %s" % (e,), file=sys.stderr)
 				traceback.print_exc(sys.stderr)
 			return False
 
@@ -356,5 +360,5 @@ class FilteringStream(object):
 	# pass non-known methods through to self.__stream
 	def __getattr__(self, name):
 		if REDNOSE_DEBUG:
-			print >> sys.stderr, "REDNOSE_DEBUG: getting attr %s" % (name,)
+			print("REDNOSE_DEBUG: getting attr %s" % (name,), file=sys.stderr)
 		return getattr(self.__stream, name)
