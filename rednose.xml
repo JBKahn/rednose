@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type='text/xsl' href='interface.xsl'?>
-<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface" xmlns:nosetests="http://gfxmonk.net/dist/0install/nosetests" uri="http://gfxmonk.net/dist/0install/rednose.xml">
+<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface" uri="http://gfxmonk.net/dist/0install/rednose.xml">
 	<name>rednose</name>
 	<summary>coloured output for nosetests</summary>
 	<description>
@@ -90,12 +90,15 @@ nosetests --no-color
 			<p>(you can also control this by setting the environment variable NOSE_REDNOSE_COLOR to 'force' or 'no')</p>
 		</div>
 	</rich-description>
-	<group nosetests:plugin="rednose:Rednose">
+	<group>
 		<environment name="NOSETESTS_PLUGINS" value="rednose/RedNose"/>
 		<environment name="NOSE_REDNOSE" value="1"/>
 		<environment insert="" name="PYTHONPATH"/>
 		<command name="run">
 			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
+		</command>
+		<command name="test">
+			<runner command="core" interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
 		</command>
 		<requires interface="http://gfxmonk.net/dist/0install/python-termstyle.xml">
 			<version not-before="0.1.7"/>

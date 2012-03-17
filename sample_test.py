@@ -1,5 +1,6 @@
 # vim: set fileencoding=utf-8 :
 from __future__ import print_function
+from __future__ import unicode_literals
 import unittest
 
 def delay_fail(f):
@@ -17,7 +18,7 @@ class SomeTest(unittest.TestCase):
 		raise RuntimeError("things went south\nand here's a second line!")
 
 	def test_utf8(self):
-		self.assertEqual(u'café', u'abc')
+		self.assertEqual('café', 'abc')
 	
 	def test_skip(self):
 		import nose
