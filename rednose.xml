@@ -97,6 +97,9 @@ nosetests --no-color
 		<command name="run">
 			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
 		</command>
+		<requires interface="http://repo.roscidus.com/python/python">
+			<version before="3"/>
+		</requires>
 		<command name="test">
 			<runner command="core" interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
 		</command>
@@ -135,6 +138,22 @@ nosetests --no-color
 			<manifest-digest sha256="f9a1a3baf1d4d9ff5be03fb6de34dcfbc3d97213ac801bbda4da4c96a03d5d5a"/>
 			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.3.1.tgz" size="5081"/>
 		</implementation>
+	</group>
+	<group>
+		<environment name="NOSETESTS_PLUGINS" value="rednose/RedNose"/>
+		<environment name="NOSE_REDNOSE" value="1"/>
+		<environment insert="" name="PYTHONPATH"/>
+		<command name="run">
+			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
+		</command>
+		<command name="test">
+			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
+			<arg>--plugin-opt=-v</arg>
+		</command>
+		<requires interface="http://repo.roscidus.com/python/python"/>
+		<requires interface="http://gfxmonk.net/dist/0install/python-termstyle.xml">
+			<version not-before="0.1.7"/>
+		</requires>
 		<implementation id="sha1new=4effffd7483aeba58ff4faea9382be9d498cb18e" released="2012-03-12" version="0.3.2">
 			<manifest-digest sha256="bacfe48742394f3819f0579ace271661ac3be8ea6971c1fbf2a3a9588adfb041"/>
 			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.3.2.tgz" size="5150"/>
