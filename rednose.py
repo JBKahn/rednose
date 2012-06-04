@@ -44,7 +44,14 @@ skip = 'skipped'
 line_length = 77
 
 PY3 = sys.version_info[0] >= 3
-to_unicode = str if PY3 else unicode
+if PY3:
+	to_unicode = str
+else:
+	def to_unicode(s):
+		try:
+			return unicode(s)
+		except UnicodeDecodeError:
+			return unicode(repr(str(s)))
 
 BLACKLISTED_WRITERS = [
 	'nose[\\/]result\\.pyc?$',
