@@ -158,5 +158,9 @@ nosetests --no-color
 			<manifest-digest sha256="bacfe48742394f3819f0579ace271661ac3be8ea6971c1fbf2a3a9588adfb041"/>
 			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.3.2.tgz" size="5150"/>
 		</implementation>
+		<implementation id="sha1new=ed1c89647e9ff1d20671b3339a7d4ccad5843d65" released="2012-06-04" version="0.3.3">
+			<manifest-digest sha256="bb80a3c47ff3ad027ae4ad7668ba9cedade7fe635cea6ca761860b2ee6c2743a"/>
+			<archive href="http://gfxmonk.net/dist/0install/rednose/rednose-0.3.3.tgz" size="5189"/>
+		</implementation>
 	</group>
 </interface>
