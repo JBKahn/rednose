@@ -146,6 +146,9 @@ nosetests --no-color
 		<command name="run">
 			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
 		</command>
+		<command name="core">
+			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml" command="core"/>
+		</command>
 		<command name="test">
 			<runner interface="http://gfxmonk.net/dist/0install/nosetests-runner.xml"/>
 			<arg>--plugin-opt=-v</arg>
