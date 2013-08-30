@@ -4,4 +4,5 @@ build
 dist
 .*
 0inst
+*.stamp
 *-local.xml
