@@ -285,7 +285,7 @@ class RedNose(nose.plugins.Plugin):
 
 		return "    %s line %s in %s\n      %s" % (
 			termstyle.blue(prefix, self._relative_path(filename)),
-			lineno,
+			termstyle.bold(termstyle.cyan(lineno)),
 			termstyle.cyan(function_name),
 			line_contents)
 
