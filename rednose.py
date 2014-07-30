@@ -1,9 +1,9 @@
 # Copyright (c) 2009, Tim Cuthbertson # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-# 
+#
 #     * Redistributions of source code must retain the above copyright
 #       notice, this list of conditions and the following disclaimer.
 #     * Redistributions in binary form must reproduce the above
@@ -13,7 +13,7 @@
 #     * Neither the name of the organisation nor the names of its
 #       contributors may be used to endorse or promote products derived
 #       from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 # LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -50,7 +50,9 @@ if PY3:
 else:
 	def to_unicode(s):
 		try:
-			return unicode(s)
+			if isinstance(s, unicode):
+				return s
+			return unicode(s, 'UTF-8')
 		except UnicodeDecodeError:
 			return unicode(repr(str(s)))
 
@@ -225,7 +227,7 @@ class RedNose(nose.plugins.Plugin):
 				additionals.append(termstyle.blue("%s skipped" % (
 					self.skip)))
 			self._out(', '.join(additionals))
-				
+
 		self._out(termstyle.green(" (%s test%s passed)" % (
 			self.success,
 			self._plural(self.success) )))
@@ -300,7 +302,7 @@ class RedNose(nose.plugins.Plugin):
 				ret.append(line)
 			current_trace = current_trace.tb_next
 		return '\n'.join(ret)
-	
+
 	def _fmt_message(self, exception, color):
 		orig_message_lines = to_unicode(exception).splitlines()
 
