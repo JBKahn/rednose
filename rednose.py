@@ -52,7 +52,9 @@ else:
 		try:
 			if isinstance(s, unicode):
 				return s
-			return unicode(s, 'UTF-8')
+			if isinstance(s, str):
+				return unicode(s, 'UTF-8')
+			return unicode(s)
 		except UnicodeDecodeError:
 			return unicode(repr(str(s)))
 
