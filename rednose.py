@@ -50,13 +50,15 @@ if PY3:
 else:
 	def to_unicode(s):
 		try:
-			if isinstance(s, unicode):
-				return s
-			if isinstance(s, str):
-				return unicode(s, 'UTF-8')
 			return unicode(s)
 		except UnicodeDecodeError:
-			return unicode(repr(str(s)))
+			s = str(s)
+			try:
+				# try utf-8, the most likely case
+				return unicode(s, 'UTF-8')
+			except UnicodeDecodeError:
+				# Can't decode, just use `repr`
+				return unicode(repr(s))
 
 BLACKLISTED_WRITERS = [
 	'nose[\\/]result\\.pyc?$',
