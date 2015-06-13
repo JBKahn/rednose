@@ -109,6 +109,7 @@ nosetests --no-color
 		<requires interface="http://gfxmonk.net/dist/0install/python-termstyle.xml">
 			<version not-before="0.1.7"/>
 		</requires>
+		<requires interface="http://gfxmonk.github.io/0downstream/feeds/pypi/colorama.xml" os="Windows"/>
 		<implementation version="{version}" released="{date}">
 			<manifest-digest/>
 			<archive href="{archive}"/>

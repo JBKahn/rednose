@@ -34,6 +34,10 @@ import linecache
 import re
 import time
 
+colorama = None
+if os.name == 'nt':
+	import colorama
+
 import nose
 
 import termstyle
@@ -194,6 +198,8 @@ class RedNose(nose.plugins.Plugin):
 		self._print_test(skip, termstyle.blue)
 
 	def setOutputStream(self, stream):
+		if colorama:
+			stream = colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
 		self.stream = stream
 
 	def report(self, stream):
