@@ -3,6 +3,7 @@
 <interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface">
 	<name>rednose</name>
 	<summary>coloured output for nosetests</summary>
+	<homepage>https://github.com/gfxmonk/rednose</homepage>
 	<feed-for interface="http://gfxmonk.net/dist/0install/rednose.xml"/>
 	<description>
 =========
