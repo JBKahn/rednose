@@ -368,7 +368,7 @@ class FilteringStream(object):
 		self.__excludes = list(map(re.compile, excludes))
 
 	def __should_filter(self, a):
-		if a not in [('.',), ('E',), ('F',)]:
+		if a not in [('.',), ('X',), ('F',), ('S',)]:
 			return False
 		try:
 			stack = traceback.extract_stack(limit=3)[0]
