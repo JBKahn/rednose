@@ -66,7 +66,8 @@ else:
 
 BLACKLISTED_WRITERS = [
 	'nose[\\/]result\\.pyc?$',
-	'unittest[\\/]runner\\.pyc?$'
+	'unittest[\\/]runner\\.pyc?$',
+	'nosetimer[\\/]plugin\\.pyc?$',
 ]
 REDNOSE_DEBUG = False
 
@@ -366,7 +367,9 @@ class FilteringStream(object):
 		self.__stream = stream
 		self.__excludes = list(map(re.compile, excludes))
 
-	def __should_filter(self):
+	def __should_filter(self, a):
+		if a != ('.',):
+			return False
 		try:
 			stack = traceback.extract_stack(limit=3)[0]
 			filename = stack[0]
@@ -383,12 +386,12 @@ class FilteringStream(object):
 			return False
 
 	def write(self, *a):
-		if self.__should_filter():
+		if self.__should_filter(a):
 			return
 		return self.__stream.write(*a)
 
 	def writeln(self, *a):
-		if self.__should_filter():
+		if self.__should_filter(a):
 			return
 		return self.__stream.writeln(*a)
 
