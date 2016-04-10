@@ -261,10 +261,10 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
         exc_type, exc_instance, exc_trace = err
 
-        colored_error_text = "\n".join([
+        colored_error_text = [
             ''.join(self.format_traceback(exc_trace)),
             self._format_exception_message(exc_type, exc_instance, color)
-        ])
+        ]
 
         if type_ == failure:
             self.failures.append((test, colored_error_text))
@@ -359,16 +359,24 @@ class ColourTextTestResult(nose.result.TextTestResult):
         super(ColourTextTestResult, self).printErrors()
 
     def printErrorList(self, flavour, errors, is_mid_test=False):  # noqa
+        """
+        A modification of the original which supports colors.
+
+        Note: self.errors and self.failures are (test, [lines_to_print]),
+        whereas the original used (test, concated_lines_to_print)
+        """
         if flavour == "FAIL":
             color = termstyle.red
         else:
             color = termstyle.yellow
 
-        for test, err in errors:
-            self._outln(self.separator1)
+        for test, err_lines in errors:
+            self._outln(color(self.separator1))
             self._outln(color("%s: %s" % (flavour, self.getDescription(test))))
-            self._outln(self.separator2)
-            self._outln("%s" % err)
+            self._outln(color(self.separator2))
+
+            for err_line in err_lines:
+                self._outln("%s" % err_line)
 
             if is_mid_test:
-                self._outln(self.separator2)
+                self._outln(color(self.separator2))
