@@ -102,12 +102,11 @@ class RedNose(nose.plugins.Plugin):
             default=False,
             help="print errors and failures as they happen, as well as at the end"
         )
-
         parser.add_option(
             "--full-file-path",
             action="store_true",
             default=False,
-            help="print the full file path as opposed to the one relative to yoru directory (default)"
+            help="print the full file path as opposed to the one relative to your directory (default)"
         )
 
     def configure(self, options, conf):
