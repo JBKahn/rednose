@@ -65,7 +65,6 @@ line_length = 77
 class RedNose(nose.plugins.Plugin):
     env_opt = 'NOSE_REDNOSE'
     env_opt_color = 'NOSE_REDNOSE_COLOR'
-    score = 199  # just under the `coverage` module
 
     def __init__(self, *args):
         super(RedNose, self).__init__(*args)
@@ -130,10 +129,10 @@ class RedNose(nose.plugins.Plugin):
         return ColourTestRunner(stream=runner.stream, descriptions=runner.descriptions, verbosity=runner.verbosity, config=runner.config, immediate=self.immediate, use_relative_path=not self.full_file_path)
 
     def setOutputStream(self, stream):  # noqa
+        self.stream = stream
         if os.name == 'nt':
             import colorama
-            return colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
-        return stream
+            self.stream = colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
 
 
 class ColourTestRunner(nose.core.TextTestRunner):
@@ -154,6 +153,9 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
     def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False, use_relative_path=False):  # noqa
         super(ColourTextTestResult, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config, errorClasses=errorClasses)
+        self.has_test_ids = config.options.enable_plugin_id
+        if self.has_test_ids:
+            self.ids = self.get_test_ids(self.config.options.testIdFile)
         self.total = 0
         self.immediate = immediate
         self.use_relative_path = use_relative_path
@@ -168,6 +170,19 @@ class ColourTextTestResult(nose.result.TextTestResult):
             unexpected_success: "U",
             success: '.',
         }
+
+    def get_test_ids(self, test_id_file):
+        """Returns a mapping of test to id if one exists, else an empty dictionary."""
+        try:
+            with open(test_id_file, 'rb') as fh:
+                try:
+                    from cPickle import load
+                except ImportError:
+                    from pickle import load
+                data = load(fh)
+            return {address: _id for _id, address in data["ids"].items()}
+        except IOError:
+            return {}
 
     def printSummary(self, start, stop):  # noqa
         """Summarize all tests - the number of failures, errors and successes."""
@@ -250,7 +265,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
         self.unexpected_success += 1
         self._print_test(unexpected_success, termstyle.cyan)
 
-    def _report_test(self, report_num, type_, test, err):  # noqa
+    def _report_test(self, report_index_num, type_, test, err):  # noqa
         """report the results of a single (failing or errored) test"""
         if type_ == failure:
             color = termstyle.red
@@ -275,7 +290,11 @@ class ColourTextTestResult(nose.result.TextTestResult):
             self._outln()
             self.printErrorList(flavour, [(test, colored_error_text)], self.immediate)
 
-        return (flavour, test, colored_error_text)
+        if self.has_test_ids:
+            test_id = self.ids.get(test.address(), self.total)
+        else:
+            test_id = report_index_num + 1
+        return (test_id, flavour, test, colored_error_text)
 
     def format_traceback(self, tb):
         ret = [termstyle.default("   Traceback (most recent call last):")]
@@ -357,17 +376,17 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
             self._outln(termstyle.green("TEST RESULT OUTPUT:"))
 
-        for index, (flavour, test, coloured_output_lines) in enumerate(self.test_failures_and_exceptions):
-            self._printError(flavour=flavour, test=test, coloured_output_lines=coloured_output_lines, test_num=index + 1)
+        for (test_id, flavour, test, coloured_output_lines) in (self.test_failures_and_exceptions):
+            self._printError(flavour=flavour, test=test, coloured_output_lines=coloured_output_lines, test_id=test_id)
 
-    def _printError(self, flavour, test, coloured_output_lines, test_num, is_mid_test=False):  # noqa
+    def _printError(self, flavour, test, coloured_output_lines, test_id, is_mid_test=False):  # noqa
         if flavour == "FAIL":
             color = termstyle.red
         else:
             color = termstyle.yellow
 
         self._outln(color(self.separator1))
-        self._outln(color("%s) %s: %s" % (test_num, flavour, self.getDescription(test))))
+        self._outln(color("%s) %s: %s" % (test_id, flavour, self.getDescription(test))))
         self._outln(color(self.separator2))
 
         for err_line in coloured_output_lines:
