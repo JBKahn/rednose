@@ -35,4 +35,15 @@ to a file). To control colouring, use one of::
 
 (you can also control this by setting the environment variable NOSE_REDNOSE_COLOR to 'force' or 'no')
 
+Rednose by default prints file paths relative to the working
+directory. If you want the full path in the traceback then
+use::
+
+	nosetests --rednose --full-file-path
+
+Rednose supports printing the test results mid run as well as at
+the end, to enable it use::
+
+	nosetests --rednose --immediate
+
 .. _nosetests: http://somethingaboutorange.com/mrl/projects/nose/
