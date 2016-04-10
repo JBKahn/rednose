@@ -157,10 +157,9 @@ class ColourTextTestResult(nose.result.TextTestResult):
         self.total = 0
         self.immediate = immediate
         self.use_relative_path = use_relative_path
-        self.reports = []
+        self.test_failures_and_exceptions = []
         self.error = self.success = self.failure = self.skip = self.expected_failure = self.unexpected_success = 0
         self.verbose = config.verbosity >= 2
-        self.verbose_off = config.verbosity == 0
         self.short_status_map = {
             failure: 'F',
             error: 'E',
@@ -221,20 +220,19 @@ class ColourTextTestResult(nose.result.TextTestResult):
     def _outln(self, msg=''):
         self._out(msg=msg, newline=True)
 
-    def _add_report(self, report):
-        failure_type, test, err = report
-        self.reports.append(report)
-        self._report_test(len(self.reports), *report)
+    def _generate_and_add_test_report(self, type_, test, err):
+        report = self._report_test(len(self.test_failures_and_exceptions), type_, test, err)
+        self.test_failures_and_exceptions.append(report)
 
     def addFailure(self, test, err):  # noqa
         self.failure += 1
         self._print_test(failure, termstyle.red)
-        self._add_report((failure, test, err))
+        self._generate_and_add_test_report(failure, test, err)
 
     def addError(self, test, err):  # noqa
         self.error += 1
         self._print_test(error, termstyle.yellow)
-        self._add_report((error, test, err))
+        self._generate_and_add_test_report(error, test, err)
 
     def addSuccess(self, test):  # noqa
         self.success += 1
@@ -276,6 +274,8 @@ class ColourTextTestResult(nose.result.TextTestResult):
         if self.immediate:
             self._outln()
             self.printErrorList(flavour, [(test, colored_error_text)], self.immediate)
+
+        return (flavour, test, colored_error_text)
 
     def format_traceback(self, tb):
         ret = [termstyle.default("   Traceback (most recent call last):")]
@@ -348,7 +348,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
         return path
 
     def printErrors(self):  # noqa
-        if self.verbose_off:
+        if not self.verbose:
             self._outln()
         if self.immediate:
             self._outln()
@@ -356,27 +356,22 @@ class ColourTextTestResult(nose.result.TextTestResult):
                 self._outln()
 
             self._outln(termstyle.green("TEST RESULT OUTPUT:"))
-        super(ColourTextTestResult, self).printErrors()
 
-    def printErrorList(self, flavour, errors, is_mid_test=False):  # noqa
-        """
-        A modification of the original which supports colors.
+        for index, (flavour, test, coloured_output_lines) in enumerate(self.test_failures_and_exceptions):
+            self._printError(flavour=flavour, test=test, coloured_output_lines=coloured_output_lines, test_num=index + 1)
 
-        Note: self.errors and self.failures are (test, [lines_to_print]),
-        whereas the original used (test, concated_lines_to_print)
-        """
+    def _printError(self, flavour, test, coloured_output_lines, test_num, is_mid_test=False):  # noqa
         if flavour == "FAIL":
             color = termstyle.red
         else:
             color = termstyle.yellow
 
-        for test, err_lines in errors:
-            self._outln(color(self.separator1))
-            self._outln(color("%s: %s" % (flavour, self.getDescription(test))))
+        self._outln(color(self.separator1))
+        self._outln(color("%s) %s: %s" % (test_num, flavour, self.getDescription(test))))
+        self._outln(color(self.separator2))
+
+        for err_line in coloured_output_lines:
+            self._outln("%s" % err_line)
+
+        if is_mid_test:
             self._outln(color(self.separator2))
-
-            for err_line in err_lines:
-                self._outln("%s" % err_line)
-
-            if is_mid_test:
-                self._outln(color(self.separator2))
