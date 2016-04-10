@@ -12,7 +12,7 @@
 #       with the distribution.
 #     * Neither the name of the organisation nor the names of its
 #       contributors may be used to endorse or promote products derived
-#            this software without specific prior written permission.
+#       from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -32,23 +32,9 @@ import os
 import sys
 import linecache
 import re
-import time
-from unittest.util import strclass
 
-
-colorama = None
-if os.name == 'nt':
-    import colorama
 import nose
 import termstyle
-
-failure = 'FAILED'
-error = 'ERROR'
-success = 'passed'
-skip = 'skipped'
-expected_failure = 'expected failure'
-unexpected_success = 'unexpected success'
-line_length = 77
 
 PY3 = sys.version_info[0] >= 3
 if PY3:
@@ -67,7 +53,13 @@ else:
                 return unicode(repr(s))
 
 
-REDNOSE_DEBUG = False
+failure = 'FAILED'
+error = 'ERROR'
+success = 'passed'
+skip = 'skipped'
+expected_failure = 'expected failure'
+unexpected_success = 'unexpected success'
+line_length = 77
 
 
 class RedNose(nose.plugins.Plugin):
@@ -77,19 +69,11 @@ class RedNose(nose.plugins.Plugin):
 
     def __init__(self, *args):
         super(RedNose, self).__init__(*args)
-        self.reports = []
-        self.error = self.success = self.failure = self.skip = 0
-        self.total = 0
-        self.stream = None
-        self.verbose = False
         self.enabled = False
-        self.tree = False
 
     def options(self, parser, env=os.environ):
-        global REDNOSE_DEBUG
         rednose_on = bool(env.get(self.env_opt, False))
         rednose_color = env.get(self.env_opt_color, 'auto')
-        REDNOSE_DEBUG = bool(env.get('REDNOSE_DEBUG', False))
 
         parser.add_option(
             "--rednose",
@@ -119,6 +103,13 @@ class RedNose(nose.plugins.Plugin):
             help="print errors and failures as they happen, as well as at the end"
         )
 
+        parser.add_option(
+            "--full-file-path",
+            action="store_true",
+            default=False,
+            help="print the full file path as opposed to the one relative to yoru directory (default)"
+        )
+
     def configure(self, options, conf):
         if options.rednose:
             self.enabled = True
@@ -130,24 +121,31 @@ class RedNose(nose.plugins.Plugin):
 
             self.immediate = options.immediate
             self.verbose = options.verbosity >= 2
+            self.full_file_path = options.full_file_path
 
-    def prepareTestResult(self, result):
+    def prepareTestResult(self, result):  # noqa
         """Required to prevent others from monkey patching the add methods."""
         return result
 
-    def prepareTestRunner(self, runner):
-        runner.immediate = self.immediate
+    def prepareTestRunner(self, runner):  # noqa
+        return ColourTestRunner(stream=runner.stream, descriptions=runner.descriptions, verbosity=runner.verbosity, config=runner.config, immediate=self.immediate, use_relative_path=not self.full_file_path)
 
-        def _makeResult(self):
-            return ColourTextTestResult(self.stream, self.descriptions, self.verbosity, self.config, immediate=self.immediate)
+    def setOutputStream(self, stream):  # noqa
+        if os.name == 'nt':
+            import colorama
+            return colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
+        return stream
 
-        import types
-        runner._makeResult = types.MethodType(_makeResult, runner)
-        return runner
 
-    def setOutputStream(self, stream):
-        self.stream = stream
-        return self.stream
+class ColourTestRunner(nose.core.TextTestRunner):
+
+    def __init__(self, stream, descriptions, verbosity, config, immediate, use_relative_path):
+        super(ColourTestRunner, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config)
+        self.immediate = immediate
+        self.use_relative_path = use_relative_path
+
+    def _makeResult(self):  # noqa
+        return ColourTextTestResult(self.stream, self.descriptions, self.verbosity, self.config, immediate=self.immediate, use_relative_path=self.use_relative_path)
 
 
 class ColourTextTestResult(nose.result.TextTestResult):
@@ -155,46 +153,46 @@ class ColourTextTestResult(nose.result.TextTestResult):
     A test result class that prints colour formatted text results to the stream.
     """
 
-    def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False):
+    def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False, use_relative_path=False):  # noqa
         super(ColourTextTestResult, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config, errorClasses=errorClasses)
         self.total = 0
         self.immediate = immediate
+        self.use_relative_path = use_relative_path
         self.reports = []
-        self.error = self.success = self.failure = self.skip = 0
+        self.error = self.success = self.failure = self.skip = self.expected_failure = self.unexpected_success = 0
         self.verbose = config.verbosity >= 2
+        self.verbose_off = config.verbosity == 0
+        self.short_status_map = {
+            failure: 'F',
+            error: 'E',
+            skip: '-',
+            expected_failure: "X",
+            unexpected_success: "U",
+            success: '.',
+        }
 
-    def printSummary(self, start, stop):
-        self._summarize(start, stop)
-
-    def _summarize(self, start, stop):
+    def printSummary(self, start, stop):  # noqa
         """Summarize all tests - the number of failures, errors and successes."""
         self._line(termstyle.black)
-        self._out("%s test%s run in %0.3f seconds" % (
-            self.total,
-            self._plural(self.total),
-            stop - start))
+        self._out("%s test%s run in %0.3f seconds" % (self.total, self._plural(self.total), stop - start))
         if self.total > self.success:
             self._outln(". ")
-            additionals = []
-            if self.failure > 0:
-                additionals.append(
-                    termstyle.red("%s FAILED" % (self.failure,))
-                )
-            if self.error > 0:
-                additionals.append(
-                    termstyle.yellow("%s error%s" % (self.error, self._plural(self.error)))
-                )
-            if self.skip > 0:
-                additionals.append(
-                    termstyle.blue("%s skipped" % (self.skip))
-                )
-            self._out(', '.join(additionals))
 
-        self._out(
-            termstyle.green(
-                " (%s test%s passed)" % (self.success, self._plural(self.success))
-            )
-        )
+            additionals = [
+                {"color": termstyle.red, "count": self.failure, "message": "%s FAILED"},
+                {"color": termstyle.yellow, "count": self.error, "message": "%s error%s" % ("%s", self._plural(self.error))},
+                {"color": termstyle.blue, "count": self.skip, "message": "%s skipped"},
+                {"color": termstyle.green, "count": self.expected_failure, "message": "%s expected_failures"},
+                {"color": termstyle.cyan, "count": self.unexpected_success, "message": "%s unexpected_successes"},
+            ]
+
+            additionals_to_print = [
+                additional["color"](additional["message"] % (additional["count"])) for additional in additionals if additional["count"] > 0
+            ]
+
+            self._out(', '.join(additionals_to_print))
+
+        self._out(termstyle.green(" (%s test%s passed)" % (self.success, self._plural(self.success))))
         self._outln()
 
     def _plural(self, num):
@@ -206,43 +204,12 @@ class ColourTextTestResult(nose.result.TextTestResult):
         """
         self._outln(color(char * line_length))
 
-    def getShortDescription(self, test):
-        doc_first_line = test.test.shortDescription()
-        if self.descriptions and doc_first_line:
-            return self.indent + doc_first_line
-        return self.indent + test.test._testMethodName
-
-    def getLongDescription(self, test):
-        doc_first_line = test.test.shortDescription()
-        if self.descriptions and doc_first_line:
-            return '\n'.join((str(test), doc_first_line))
-        return str(test)
-
-    def getClassDescription(self, test):
-        test_class = test.test.__class__
-        doc = test_class.__doc__
-        if self.descriptions and doc:
-            return doc.split('\n')[0].strip()
-        return strclass(test_class)
-
     def _print_test(self, type_, color):
         self.total += 1
         if self.verbose:
             self._outln(color(type_))
         else:
-            if type_ == failure:
-                short_ = 'F'
-            elif type_ == error:
-                short_ = 'E'
-            elif type_ == skip:
-                short_ = '-'
-            elif type_ == expected_failure:
-                short_ = "X"
-            elif type_ == unexpected_success:
-                short_ = "U"
-            else:
-                short_ = '.'
-
+            short_ = self.short_status_map.get(type_, ".")
             self._out(color(short_))
             if self.total % line_length == 0:
                 self._outln()
@@ -253,80 +220,85 @@ class ColourTextTestResult(nose.result.TextTestResult):
             self.stream.write('\n')
 
     def _outln(self, msg=''):
-        self._out(msg, True)
+        self._out(msg=msg, newline=True)
 
     def _add_report(self, report):
         failure_type, test, err = report
         self.reports.append(report)
-        if self.immediate:
-            self._outln()
         self._report_test(len(self.reports), *report)
 
-    def addFailure(self, test, err):
+    def addFailure(self, test, err):  # noqa
         self.failure += 1
         self._print_test(failure, termstyle.red)
         self._add_report((failure, test, err))
 
-    def addError(self, test, err):
-        if err[0].__name__ == 'SkipTest':
-            self.addSkip(test, err)
-            return
+    def addError(self, test, err):  # noqa
         self.error += 1
         self._print_test(error, termstyle.yellow)
         self._add_report((error, test, err))
 
-    def addSuccess(self, test):
+    def addSuccess(self, test):  # noqa
         self.success += 1
         self._print_test(success, termstyle.green)
 
-    def addSkip(self, test=None, err=None):
+    def addSkip(self, test, err):  # noqa
         self.skip += 1
         self._print_test(skip, termstyle.blue)
 
-    def addExpectedFailure(self, test, err):
+    def addExpectedFailure(self, test, err):  # noqa
         self.expected_failure += 1
-        self._print_test(expected_failure, termstyle.magenta)
+        self._print_test(expected_failure, termstyle.green)
 
-    def addUnexpectedSuccess(self, test):
+    def addUnexpectedSuccess(self, test):  # noqa
         self.unexpected_success += 1
         self._print_test(unexpected_success, termstyle.cyan)
 
-    def _report_test(self, report_num, type_, test, err):
+    def _report_test(self, report_num, type_, test, err):  # noqa
         """report the results of a single (failing or errored) test"""
         if type_ == failure:
             color = termstyle.red
         else:
             color = termstyle.yellow
+
         exc_type, exc_instance, exc_trace = err
 
-        example = (
-            self._fmt_traceback(exc_trace) +
-            "\n" +
-            color('   ', termstyle.bold(color(exc_type.__name__)), ": ") +
-            self._fmt_message(exc_instance, color)
-        )
+        colored_error_text = "\n".join([
+            ''.join(self.format_traceback(exc_trace)),
+            self._format_exception_message(exc_type, exc_instance, color)
+        ])
 
         if type_ == failure:
-            self.failures.append((test, example))
+            self.failures.append((test, colored_error_text))
             flavour = "FAIL"
         else:
-            self.errors.append((test, example))
+            self.errors.append((test, colored_error_text))
             flavour = "ERROR"
 
         if self.immediate:
-            self.printErrorList(flavour, [(test, example)])
+            self._outln()
+            self.printErrorList(flavour, [(test, colored_error_text)], self.immediate)
 
-    def _file_line(self, tb):
-        """formats the file / lineno / function line of a traceback element"""
-        prefix = "file://"
-        prefix = ""
+    def format_traceback(self, tb):
+        ret = [termstyle.default("   Traceback (most recent call last):")]
 
-        f = tb.tb_frame
-        if '__unittest' in f.f_globals:
-            # this is the magical flag that prevents unittest internal
-            # code from junking up the stacktrace
+        current_trace = tb
+        while current_trace is not None:
+            line = self._format_traceback_line(current_trace)
+            if line is not None:
+                ret.append(line)
+            current_trace = current_trace.tb_next
+        return '\n'.join(ret)
+
+    def _format_traceback_line(self, tb):
+        """
+        Formats the file / lineno / function line of a traceback element.
+
+        Returns None is the line is not relevent to the user i.e. inside the test runner.
+        """
+        if self._is_relevant_tb_level(tb):
             return None
 
+        f = tb.tb_frame
         filename = f.f_code.co_filename
         lineno = tb.tb_lineno
         linecache.checkcache(filename)
@@ -335,40 +307,34 @@ class ColourTextTestResult(nose.result.TextTestResult):
         line_contents = linecache.getline(filename, lineno, f.f_globals).strip()
 
         return "    %s line %s in %s\n      %s" % (
-            termstyle.blue(prefix, self._relative_path(filename)),
+            termstyle.blue(self._relative_path(filename) if self.use_relative_path else filename),
             termstyle.bold(termstyle.cyan(lineno)),
             termstyle.cyan(function_name),
-            line_contents)
+            line_contents
+        )
 
-    def _fmt_traceback(self, trace):
-        """format a traceback"""
-        ret = []
-        ret.append(termstyle.default("   Traceback (most recent call last):"))
-        current_trace = trace
-        while current_trace is not None:
-            line = self._file_line(current_trace)
-            if line is not None:
-                ret.append(line)
-            current_trace = current_trace.tb_next
-        return '\n'.join(ret)
-
-    def _fmt_message(self, exception, color):
-        orig_message_lines = to_unicode(exception).splitlines()
+    def _format_exception_message(self, exception_type, exception_instance, message_color):
+        """Returns a colorized formatted exception message."""
+        orig_message_lines = to_unicode(exception_instance).splitlines()
 
         if len(orig_message_lines) == 0:
             return ''
-        message_lines = [color(orig_message_lines[0])]
+        exception_message = orig_message_lines[0]
+
+        message_lines = [message_color('   ', termstyle.bold(message_color(exception_type.__name__)), ": ") + message_color(exception_message)]
         for line in orig_message_lines[1:]:
             match = re.match('^---.* begin captured stdout.*----$', line)
             if match:
-                color = None
+                message_color = termstyle.magenta
                 message_lines.append('')
             line = '   ' + line
-            message_lines.append(color(line) if color is not None else line)
+            message_lines.append(message_color(line))
         return '\n'.join(message_lines)
 
     def _relative_path(self, path):
         """
+        Returns the relative path of a file to the current working directory.
+
         If path is a child of the current working directory, the relative
         path is returned surrounded by bold xterm escape sequences.
         If path is not a child of the working directory, path is returned
@@ -382,22 +348,28 @@ class ColourTextTestResult(nose.result.TextTestResult):
             return termstyle.bold(fullpath[len(here) + 1:])
         return path
 
-    def printErrors(self):
+    def printErrors(self):  # noqa
+        if self.verbose_off:
+            self._outln()
         if self.immediate:
-            for x in range(0, 5):
+            self._outln()
+            for x in range(0, 4):
                 self._outln()
+
+            self._outln(termstyle.green("TEST RESULT OUTPUT:"))
         super(ColourTextTestResult, self).printErrors()
 
-    def printErrorList(self, flavour, errors, is_mid_test=False):
-        if not self.verbose:
-            self._outln()
+    def printErrorList(self, flavour, errors, is_mid_test=False):  # noqa
         if flavour == "FAIL":
             color = termstyle.red
         else:
             color = termstyle.yellow
 
         for test, err in errors:
-            self.stream.writeln(self.separator1)
-            self.stream.writeln(color("%s: %s" % (flavour, self.getDescription(test))))
-            self.stream.writeln(self.separator2)
-            self.stream.writeln("%s" % err)
+            self._outln(self.separator1)
+            self._outln(color("%s: %s" % (flavour, self.getDescription(test))))
+            self._outln(self.separator2)
+            self._outln("%s" % err)
+
+            if is_mid_test:
+                self._outln(self.separator2)
