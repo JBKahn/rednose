@@ -335,7 +335,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
         Returns the relative path of a file to the current working directory.
 
         If path is a child of the current working directory, the relative
-        path is returned surrounded by bold xterm escape sequences.
+        path is returned surrounded.
         If path is not a child of the working directory, path is returned
         """
         try:
@@ -344,7 +344,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
         except OSError:
             return path
         if fullpath.startswith(here):
-            return termstyle.bold(fullpath[len(here) + 1:])
+            return fullpath[len(here) + 1:]
         return path
 
     def printErrors(self):  # noqa
