@@ -379,6 +379,16 @@ class ColourTextTestResult(nose.result.TextTestResult):
         for (test_id, flavour, test, coloured_output_lines) in (self.test_failures_and_exceptions):
             self._printError(flavour=flavour, test=test, coloured_output_lines=coloured_output_lines, test_id=test_id)
 
+        # Copied from the parent function.
+        self._outln()
+        for cls in self.errorClasses.keys():
+            storage, label, isfail = self.errorClasses[cls]
+            if isfail:
+                self.printErrorList(label, storage)
+        # Might get patched into a result with no config
+        if hasattr(self, 'config'):
+            self.config.plugins.report(self.stream)
+
     def _printError(self, flavour, test, coloured_output_lines, test_id, is_mid_test=False):  # noqa
         if flavour == "FAIL":
             color = termstyle.red
