@@ -3,7 +3,10 @@ from setuptools import setup, find_packages
 
 
 def read(fname):
-    return open(path.join(path.dirname(__file__), fname)).read()
+    try:
+        return open(path.join(path.dirname(__file__), fname)).read()
+    except IOError:
+        return """A module for making nose pretty using colors."""
 
 setup(
     packages=find_packages(exclude=['test', 'test.*']),
