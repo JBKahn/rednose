@@ -7,3 +7,4 @@ dist
 *.stamp
 *-local.xml
 gup
+test_results.txt

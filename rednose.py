@@ -226,7 +226,10 @@ class ColourTextTestResult(nose.result.TextTestResult):
                 self._outln()
 
     def _out(self, msg='', newline=False):
-        self.stream.write(msg)
+        try:
+            self.stream.write(msg)
+        except UnicodeEncodeError:
+            self.stream.write(msg.encode('utf-8'))
         if newline:
             self.stream.write('\n')
 
