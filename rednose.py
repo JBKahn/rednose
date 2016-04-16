@@ -126,13 +126,11 @@ class RedNose(nose.plugins.Plugin):
         return result
 
     def prepareTestRunner(self, runner):  # noqa
-        return ColourTestRunner(stream=runner.stream, descriptions=runner.descriptions, verbosity=runner.verbosity, config=runner.config, immediate=self.immediate, use_relative_path=not self.full_file_path)
-
-    def setOutputStream(self, stream):  # noqa
-        self.stream = stream
+        stream = runner.stream
         if os.name == 'nt':
             import colorama
-            self.stream = colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
+            stream = colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
+        return ColourTestRunner(stream=stream, descriptions=runner.descriptions, verbosity=runner.verbosity, config=runner.config, immediate=self.immediate, use_relative_path=not self.full_file_path)
 
 
 class ColourTestRunner(nose.core.TextTestRunner):
