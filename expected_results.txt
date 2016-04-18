@@ -42,6 +42,11 @@
     [34mtest/sample_test.py[0m line [1m[36m12[0m[0m in [36m<lambda>[0m
       delay_fail(lambda: self.fail('no dice'))
 [31m   [31m[1m[31mAssertionError[0m[0m[31m: [0m[31mno dice[0m
+
+[35m   -------------------- >> begin captured stdout << ---------------------[0m
+[35m   oh noes, it's gonna blow![0m
+[35m   [0m
+[35m   --------------------- >> end captured stdout << ----------------------[0m
 [31m======================================================================[0m
 [31m7) FAIL: test_utf8 (sample_test.SomeTest)[0m
 [31m----------------------------------------------------------------------[0m
@@ -60,6 +65,5 @@
 [31m   [31m[1m[31mAssertionError[0m[0m[31m: [0m[31mNone[0m
 
 [30m-----------------------------------------------------------------------------[0m
-8 tests run in 0.008 seconds.
+8 tests run in 0.009 seconds.
 [31m4 FAILED[0m, [33m2 errors[0m, [34m1 skipped[0m[32m (1 test passed)[0m
-oh noes, it's gonna blow!

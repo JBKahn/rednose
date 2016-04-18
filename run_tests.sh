@@ -1,5 +1,5 @@
 pip install -e .
-nosetests -s --rednose --with-id --force-color > test_results.txt 2>&1
+nosetests --rednose --with-id --force-color > test_results.txt 2>&1
 result=$(comm -3 expected_results.txt test_results.txt | wc -l)
 
 if [ "$result" -ge 20 -a "$result" -le 22 ];
