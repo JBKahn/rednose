@@ -107,6 +107,12 @@ class RedNose(nose.plugins.Plugin):
             default=False,
             help="print the full file path as opposed to the one relative to your directory (default)"
         )
+        parser.add_option(
+            "--hide-skips",
+            action="store_true",
+            default=False,
+            help="Hide the error printing for skip cases (default is to show them)"
+        )
 
     def configure(self, options, conf):
         if options.rednose:
@@ -120,6 +126,7 @@ class RedNose(nose.plugins.Plugin):
             self.immediate = options.immediate
             self.verbose = options.verbosity >= 2
             self.full_file_path = options.full_file_path
+            self.hide_skips = options.hide_skips
 
     def prepareTestResult(self, result):  # noqa
         """Required to prevent others from monkey patching the add methods."""
@@ -130,18 +137,19 @@ class RedNose(nose.plugins.Plugin):
         if os.name == 'nt':
             import colorama
             stream = colorama.initialise.wrap_stream(stream, convert=True, strip=False, autoreset=False, wrap=True)
-        return ColourTestRunner(stream=stream, descriptions=runner.descriptions, verbosity=runner.verbosity, config=runner.config, immediate=self.immediate, use_relative_path=not self.full_file_path)
+        return ColourTestRunner(stream=stream, descriptions=runner.descriptions, verbosity=runner.verbosity, config=runner.config, immediate=self.immediate, use_relative_path=not self.full_file_path, hide_skips=self.hide_skips)
 
 
 class ColourTestRunner(nose.core.TextTestRunner):
 
-    def __init__(self, stream, descriptions, verbosity, config, immediate, use_relative_path):
+    def __init__(self, stream, descriptions, verbosity, config, immediate, use_relative_path, hide_skips):
         super(ColourTestRunner, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config)
         self.immediate = immediate
         self.use_relative_path = use_relative_path
+        self.hide_skips = hide_skips
 
     def _makeResult(self):  # noqa
-        return ColourTextTestResult(self.stream, self.descriptions, self.verbosity, self.config, immediate=self.immediate, use_relative_path=self.use_relative_path)
+        return ColourTextTestResult(self.stream, self.descriptions, self.verbosity, self.config, immediate=self.immediate, use_relative_path=self.use_relative_path, hide_skips=self.hide_skips)
 
 
 class ColourTextTestResult(nose.result.TextTestResult):
@@ -149,7 +157,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
     A test result class that prints colour formatted text results to the stream.
     """
 
-    def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False, use_relative_path=False):  # noqa
+    def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False, use_relative_path=False, hide_skips=False):  # noqa
         super(ColourTextTestResult, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config, errorClasses=errorClasses)
         self.has_test_ids = config.options.enable_plugin_id
         if self.has_test_ids:
@@ -157,6 +165,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
         self.total = 0
         self.immediate = immediate
         self.use_relative_path = use_relative_path
+        self.hide_skips = hide_skips
         self.test_failures_and_exceptions = []
         self.error = self.success = self.failure = self.skip = self.expected_failure = self.unexpected_success = 0
         self.verbose = config.verbosity >= 2
@@ -168,6 +177,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
             unexpected_success: "U",
             success: '.',
         }
+        self.skips = []
 
     def get_test_ids(self, test_id_file):
         """Returns a mapping of test to id if one exists, else an empty dictionary."""
@@ -178,7 +188,8 @@ class ColourTextTestResult(nose.result.TextTestResult):
                 except ImportError:
                     from pickle import load
                 data = load(fh)
-            return {address: _id for _id, address in data["ids"].items()}
+
+            return dict((address, _id) for _id, address in data["ids"].items())
         except IOError:
             return {}
 
@@ -215,7 +226,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
         """
         self._outln(color(char * line_length))
 
-    def _print_test(self, type_, color):
+    def _print_test(self, test, type_, color):
         self.total += 1
         if self.verbose:
             self._outln(color(type_))
@@ -242,29 +253,39 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
     def addFailure(self, test, err):  # noqa
         self.failure += 1
-        self._print_test(failure, termstyle.red)
+        self._print_test(test, failure, termstyle.red)
         self._generate_and_add_test_report(failure, test, err)
 
     def addError(self, test, err):  # noqa
+        if err[0].__name__ == 'SkipTest':
+            self.addSkip(test, err)
+            return
         self.error += 1
-        self._print_test(error, termstyle.yellow)
+        self._print_test(test, error, termstyle.yellow)
         self._generate_and_add_test_report(error, test, err)
 
     def addSuccess(self, test):  # noqa
         self.success += 1
-        self._print_test(success, termstyle.green)
+        self._print_test(test, success, termstyle.green)
 
     def addSkip(self, test, err):  # noqa
+        if isinstance(err, Exception):
+            err = (err.__class__, err, None)
+        elif self.verbose:
+            skip_message = "#{test_id} {test_location} ... ".format(test_id=self._get_id(test), test_location=test.context.__file__)
+            self._out(termstyle.reset(skip_message))
         self.skip += 1
-        self._print_test(skip, termstyle.blue)
+        self._print_test(test, skip, termstyle.blue)
+        if not self.hide_skips:
+            self._generate_and_add_test_report(skip, test, err)
 
     def addExpectedFailure(self, test, err):  # noqa
         self.expected_failure += 1
-        self._print_test(expected_failure, termstyle.green)
+        self._print_test(test, expected_failure, termstyle.green)
 
     def addUnexpectedSuccess(self, test):  # noqa
         self.unexpected_success += 1
-        self._print_test(unexpected_success, termstyle.cyan)
+        self._print_test(test, unexpected_success, termstyle.cyan)
 
     def _report_test(self, report_index_num, type_, test, err):  # noqa
         """report the results of a single (failing or errored) test"""
@@ -283,6 +304,9 @@ class ColourTextTestResult(nose.result.TextTestResult):
         if type_ == failure:
             self.failures.append((test, colored_error_text))
             flavour = "FAIL"
+        elif type_ == skip:
+            self.skips.append((test, colored_error_text))
+            flavour = "SKIP"
         else:
             self.errors.append((test, colored_error_text))
             flavour = "ERROR"
@@ -291,14 +315,25 @@ class ColourTextTestResult(nose.result.TextTestResult):
             self._outln()
             self.printErrorList(flavour, [(test, colored_error_text)], self.immediate)
 
-        if self.has_test_ids:
-            test_id = self.ids.get(test.address(), self.total)
-        else:
-            test_id = report_index_num + 1
+        test_id = self._get_id(test)
         return (test_id, flavour, test, colored_error_text)
 
+    def _get_id(self, test):
+        report_index_num = len(self.test_failures_and_exceptions)
+        if self.has_test_ids:
+            try:
+                test_id = self.ids.get(test.address(), self.total)
+            except AttributeError:
+                test_id = report_index_num + 1
+        else:
+            test_id = report_index_num + 1
+        return test_id
+
     def format_traceback(self, tb):
-        ret = [termstyle.default("   Traceback (most recent call last):")]
+        if tb is not None:
+            ret = [termstyle.default("   Traceback (most recent call last):")]
+        else:
+            ret = [termstyle.default("   No Traceback")]
 
         current_trace = tb
         while current_trace is not None:
@@ -393,6 +428,9 @@ class ColourTextTestResult(nose.result.TextTestResult):
     def _printError(self, flavour, test, coloured_output_lines, test_id, is_mid_test=False):  # noqa
         if flavour == "FAIL":
             color = termstyle.red
+        elif flavour == "SKIP":
+            color = termstyle.blue
+
         else:
             color = termstyle.yellow
 
