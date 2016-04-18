@@ -178,7 +178,8 @@ class ColourTextTestResult(nose.result.TextTestResult):
                 except ImportError:
                     from pickle import load
                 data = load(fh)
-            return {address: _id for _id, address in data["ids"].items()}
+
+            return dict((address, _id) for _id, address in data["ids"].items())
         except IOError:
             return {}
 
@@ -292,7 +293,10 @@ class ColourTextTestResult(nose.result.TextTestResult):
             self.printErrorList(flavour, [(test, colored_error_text)], self.immediate)
 
         if self.has_test_ids:
-            test_id = self.ids.get(test.address(), self.total)
+            try:
+                test_id = self.ids.get(test.address(), self.total)
+            except AttributeError:
+                test_id = report_index_num + 1
         else:
             test_id = report_index_num + 1
         return (test_id, flavour, test, colored_error_text)
