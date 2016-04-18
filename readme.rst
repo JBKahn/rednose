@@ -41,6 +41,11 @@ use::
 
 	nosetests --rednose --full-file-path
 
+Rednose by default prints error style formating for skipped tests,
+to supress this use::
+
+	nosetests --rednose --hide-skips
+
 Rednose supports printing the test results mid run as well as at
 the end, to enable it use::
 

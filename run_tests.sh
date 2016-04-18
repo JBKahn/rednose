@@ -11,12 +11,12 @@ if [ "$result" -eq 4 ];
 fi
 
 # local python 2.6
-if [ "$result" -eq 59 ];
+if [ "$result" -eq 58 ];
 	then exit 0
 fi
 
 # travis python 2.6
-if [ "$result" -eq 67 ];
+if [ "$result" -eq 66 ];
 	then exit 0
 fi
 

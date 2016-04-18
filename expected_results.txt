@@ -1,7 +1,7 @@
-[33mE[0m[31mF[0m[33mE[0m[31mF[0m[34m-[0m[32m.[0m[31mF[0m[31mF[0m
-[33m======================================================================[0m
-[33m1) ERROR: test suite for <module 'class_test_failure' from '/Users/josephkahn/dev/rednose/test/class_test_failure.pyc'>[0m
-[33m----------------------------------------------------------------------[0m
+[34m-[0m[31mF[0m[33mE[0m[31mF[0m[34m-[0m[32m.[0m[31mF[0m[31mF[0m
+[34m======================================================================[0m
+[34m1) SKIP: test suite for <module 'class_test_failure' from '/Users/josephkahn/dev/rednose/test/class_test_failure.pyc'>[0m
+[34m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
     [34m/Users/josephkahn/.virtualenvs/dev/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m209[0m[0m in [36mrun[0m
       self.setUp()
@@ -47,6 +47,11 @@
 [35m   oh noes, it's gonna blow![0m
 [35m   [0m
 [35m   --------------------- >> end captured stdout << ----------------------[0m
+[34m======================================================================[0m
+[34m5) SKIP: test_skip (sample_test.SomeTest)[0m
+[34m----------------------------------------------------------------------[0m
+[0m   No Traceback[0m
+
 [31m======================================================================[0m
 [31m7) FAIL: test_utf8 (sample_test.SomeTest)[0m
 [31m----------------------------------------------------------------------[0m
@@ -65,5 +70,5 @@
 [31m   [31m[1m[31mAssertionError[0m[0m[31m: [0m[31mNone[0m
 
 [30m-----------------------------------------------------------------------------[0m
-8 tests run in 0.009 seconds.
-[31m4 FAILED[0m, [33m2 errors[0m, [34m1 skipped[0m[32m (1 test passed)[0m
+8 tests run in 0.008 seconds.
+[31m4 FAILED[0m, [33m1 error[0m, [34m2 skipped[0m[32m (1 test passed)[0m
