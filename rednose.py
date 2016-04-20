@@ -313,7 +313,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
         if self.immediate:
             self._outln()
-            self.printErrorList(flavour, [(test, colored_error_text)], self.immediate)
+            self._printError(flavour, test, coloured_output_text, test_id, True)
 
         test_id = self._get_id(test)
         return (test_id, flavour, test, colored_error_text)
