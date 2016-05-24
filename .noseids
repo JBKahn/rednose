@@ -52,4 +52,10 @@ sI8
 g9
 S'SomeTest.test_with_long_description'
 tp15
+sI9
+(S'/Users/josephkahn/dev/rednose/test/sample_test.py'
+S'sample_test'
+p16
+S'SomeTest.test_skip_with_reason'
+tp17
 ss.

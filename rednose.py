@@ -270,7 +270,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
     def addSkip(self, test, err):  # noqa
         if isinstance(err, Exception):
-            err = (err.__class__, err, None)
+            err = (nose.SkipTest, err, None)
         elif self.verbose:
             skip_message = "#{test_id} {test_location} ... ".format(test_id=self._get_id(test), test_location=test.context.__file__)
             self._out(termstyle.reset(skip_message))
@@ -291,6 +291,8 @@ class ColourTextTestResult(nose.result.TextTestResult):
         """report the results of a single (failing or errored) test"""
         if type_ == failure:
             color = termstyle.red
+        elif type_ == skip:
+            color = termstyle.blue
         else:
             color = termstyle.yellow
 
