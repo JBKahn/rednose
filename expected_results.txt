@@ -1,24 +1,24 @@
-[34m-[0m[31mF[0m[33mE[0m[31mF[0m[34m-[0m[32m.[0m[31mF[0m[31mF[0m
+[34m-[0m[31mF[0m[33mE[0m[31mF[0m[34m-[0m[34m-[0m[32m.[0m[31mF[0m[31mF[0m
 [34m======================================================================[0m
 [34m1) SKIP: test suite for <module 'class_test_failure' from '/Users/josephkahn/dev/rednose/test/class_test_failure.pyc'>[0m
 [34m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
-    [34m/Users/josephkahn/.virtualenvs/dev/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m209[0m[0m in [36mrun[0m
+    [34m/Users/josephkahn/.virtualenvs/rednose/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m209[0m[0m in [36mrun[0m
       self.setUp()
-    [34m/Users/josephkahn/.virtualenvs/dev/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m292[0m[0m in [36msetUp[0m
+    [34m/Users/josephkahn/.virtualenvs/rednose/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m292[0m[0m in [36msetUp[0m
       self.setupContext(ancestor)
-    [34m/Users/josephkahn/.virtualenvs/dev/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m315[0m[0m in [36msetupContext[0m
+    [34m/Users/josephkahn/.virtualenvs/rednose/lib/python2.7/site-packages/nose/suite.py[0m line [1m[36m315[0m[0m in [36msetupContext[0m
       try_run(context, names)
-    [34m/Users/josephkahn/.virtualenvs/dev/lib/python2.7/site-packages/nose/util.py[0m line [1m[36m471[0m[0m in [36mtry_run[0m
+    [34m/Users/josephkahn/.virtualenvs/rednose/lib/python2.7/site-packages/nose/util.py[0m line [1m[36m471[0m[0m in [36mtry_run[0m
       return func()
     [34mtest/class_test_failure.py[0m line [1m[36m6[0m[0m in [36msetup_module[0m
       raise unittest.SkipTest('RESI specific Nonius libs not present')
-[33m   [33m[1m[33mSkipTest[0m[0m[33m: [0m[33mRESI specific Nonius libs not present[0m
+[34m   [34m[1m[34mSkipTest[0m[0m[34m: [0m[34mRESI specific Nonius libs not present[0m
 [31m======================================================================[0m
 [31m2) FAIL: encoding_test.test[0m
 [31m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
-    [34m/Users/josephkahn/.virtualenvs/dev/lib/python2.7/site-packages/nose/case.py[0m line [1m[36m197[0m[0m in [36mrunTest[0m
+    [34m/Users/josephkahn/.virtualenvs/rednose/lib/python2.7/site-packages/nose/case.py[0m line [1m[36m197[0m[0m in [36mrunTest[0m
       self.test(*self.arg)
     [34mtest/encoding_test.py[0m line [1m[36m7[0m[0m in [36mtest[0m
       assert False, "ä"
@@ -52,6 +52,11 @@
 [34m----------------------------------------------------------------------[0m
 [0m   No Traceback[0m
 
+[34m======================================================================[0m
+[34m10) SKIP: test_skip_with_description (sample_test.SomeTest)[0m
+[34m----------------------------------------------------------------------[0m
+[0m   No Traceback[0m
+[34m   [34m[1m[34mSkipTest[0m[0m[34m: [0m[34mLook at me, I'm skipping for a reason!![0m
 [31m======================================================================[0m
 [31m7) FAIL: test_utf8 (sample_test.SomeTest)[0m
 [31m----------------------------------------------------------------------[0m
@@ -65,10 +70,10 @@
 [31m8) FAIL: It's got a long description, you see?[0m
 [31m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
-    [34mtest/sample_test.py[0m line [1m[36m29[0m[0m in [36mtest_with_long_description[0m
+    [34mtest/sample_test.py[0m line [1m[36m33[0m[0m in [36mtest_with_long_description[0m
       self.fail()
 [31m   [31m[1m[31mAssertionError[0m[0m[31m: [0m[31mNone[0m
 
 [30m-----------------------------------------------------------------------------[0m
-8 tests run in 0.008 seconds.
-[31m4 FAILED[0m, [33m1 error[0m, [34m2 skipped[0m[32m (1 test passed)[0m
+9 tests run in 0.010 seconds. 
+[31m4 FAILED[0m, [33m1 error[0m, [34m3 skipped[0m[32m (1 test passed)[0m
