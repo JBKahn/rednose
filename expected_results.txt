@@ -15,7 +15,7 @@
       raise unittest.SkipTest('RESI specific Nonius libs not present')
 [34m   [34m[1m[34mSkipTest[0m[0m[34m: [0m[34mRESI specific Nonius libs not present[0m
 [31m======================================================================[0m
-[31m2) FAIL: encoding_test.test[0m
+[31m1) FAIL: encoding_test.test[0m
 [31m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
     [34m/Users/josephkahn/.virtualenvs/rednose/lib/python2.7/site-packages/nose/case.py[0m line [1m[36m197[0m[0m in [36mrunTest[0m
@@ -24,7 +24,7 @@
       assert False, "ä"
 [31m   [31m[1m[31mAssertionError[0m[0m[31m: [0m[31mä[0m
 [33m======================================================================[0m
-[33m3) ERROR: test_error (sample_test.SomeTest)[0m
+[33m2) ERROR: test_error (sample_test.SomeTest)[0m
 [33m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
     [34mtest/sample_test.py[0m line [1m[36m20[0m[0m in [36mtest_error[0m
@@ -32,7 +32,7 @@
 [33m   [33m[1m[33mRuntimeError[0m[0m[33m: [0m[33mthings went south[0m
 [33m   and here's a second line![0m
 [31m======================================================================[0m
-[31m4) FAIL: test_fail (sample_test.SomeTest)[0m
+[31m3) FAIL: test_fail (sample_test.SomeTest)[0m
 [31m----------------------------------------------------------------------[0m
 [0m   Traceback (most recent call last):[0m
     [34mtest/sample_test.py[0m line [1m[36m14[0m[0m in [36mtest_fail[0m
@@ -48,12 +48,12 @@
 [35m   [0m
 [35m   --------------------- >> end captured stdout << ----------------------[0m
 [34m======================================================================[0m
-[34m5) SKIP: test_skip (sample_test.SomeTest)[0m
+[34m4) SKIP: test_skip (sample_test.SomeTest)[0m
 [34m----------------------------------------------------------------------[0m
 [0m   No Traceback[0m
 
 [34m======================================================================[0m
-[34m6) SKIP: test_skip_with_reason (sample_test.SomeTest)[0m
+[34m5) SKIP: test_skip_with_reason (sample_test.SomeTest)[0m
 [34m----------------------------------------------------------------------[0m
 [0m   No Traceback[0m
 [34m   [34m[1m[34mSkipTest[0m[0m[34m: [0m[34mLook at me, I'm skipping for a reason!![0m
