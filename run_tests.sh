@@ -10,6 +10,10 @@ if [ "$result" -eq 4 ];
 	then exit 0
 fi
 
+if [ "$result" -eq 0 ];
+	then exit 0
+fi
+
 # local python 2.6
 if [ "$result" -eq 58 ];
 	then exit 0
