@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import unittest
 
 import nose
@@ -8,6 +9,19 @@ from nose.plugins import PluginTester, testid
 from six import PY2, PY3
 
 from rednose import RedNose
+
+
+try:
+    from unittest import skip, skipUnless
+except ImportError:
+    def skip(f):
+        return lambda self: None
+
+    def skipUnless(condition, reason):  # noqa
+        if condition:
+            return lambda x: x
+        else:
+            return lambda x: None
 
 
 class TestRedNoseWithId(PluginTester, unittest.TestCase):
@@ -78,6 +92,7 @@ class TestRedNose(PluginTester, unittest.TestCase):
         return [TC('runTest')]
 
 
+@skipUnless(sys.version_info >= (2, 7), "python 2.6 not supported")
 class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
     activate = '--rednose'
     plugins = [RedNose()]
@@ -117,6 +132,7 @@ class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
             self.assertTrue(expected_line in actual_line)
 
 
+@skipUnless(sys.version_info >= (2, 7), "python 2.6 not supported")
 class TestRedNoseSampleTests(PluginTester, unittest.TestCase):
     activate = '--rednose'
     plugins = [RedNose()]
@@ -168,6 +184,11 @@ class TestRedNoseSampleTests(PluginTester, unittest.TestCase):
             '\x1b[31m2 FAILED\x1b[0m, \x1b[33m1 error\x1b[0m, \x1b[34m2 skipped\x1b[0m\x1b[32m (1 test passed)\x1b[0m',
             ''
         ]
+        if PY2:
+            import sys
+            if sys.version_info[1] == 6:
+                expected_lines = expected_lines[:8] + expected_lines[10:]
+
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
                 print(expected_line)
@@ -275,6 +296,10 @@ class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
             expected_lines[6] = "      self.assertEqual('café', 'abc')"
             expected_lines[7] = "\x1b[31m   \x1b[31m\x1b[1m\x1b[31mAssertionError\x1b[0m\x1b[0m\x1b[31m: \x1b[0m\x1b[31m'café' != 'abc'\x1b[0m"
             expected_lines[8] = "\x1b[31m   - café\x1b[0m"
+        elif PY2:
+            import sys
+            if sys.version_info[1] == 6:
+                expected_lines = expected_lines[:8] + expected_lines[10:]
 
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
