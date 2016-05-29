@@ -29,4 +29,5 @@ setup(
     ],
     keywords='test nosetests nose nosetest output colour console',
     license='BSD',
+    test_suite='test_files.new_tests',
 )

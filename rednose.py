@@ -159,7 +159,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
     def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False, use_relative_path=False, hide_skips=False):  # noqa
         super(ColourTextTestResult, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config, errorClasses=errorClasses)
-        self.has_test_ids = config.options.enable_plugin_id
+        self.has_test_ids = getattr(config.options, "enable_plugin_id", False)
         if self.has_test_ids:
             self.ids = self.get_test_ids(self.config.options.testIdFile)
         self.total = 0

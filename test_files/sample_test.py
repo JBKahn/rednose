@@ -19,9 +19,6 @@ class SomeTest(unittest.TestCase):
     def test_error(self):
         raise RuntimeError("things went south\nand here's a second line!")
 
-    def test_utf8(self):
-        self.assertEqual('café', 'abc')
-
     def test_skip(self):
         import nose
         raise nose.SkipTest
