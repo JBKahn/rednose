@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 import os
 import unittest
 
 import nose
 from nose.plugins import PluginTester, testid
-from six import PY2
+from six import PY2, PY3
 
 from rednose import RedNose
 
@@ -90,13 +92,13 @@ class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
             "\x1b[34m1) SKIP: test suite for <module 'test_files.class_test_failure' from '{0}/test_files/class_test_failure.py".format(os.getcwd()),
             '\x1b[34m----------------------------------------------------------------------\x1b[0m',
             '\x1b[0m   Traceback (most recent call last):\x1b[0m',
-            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m209\x1b[0m\x1b[0m in \x1b[36mrun\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m'.format(nose.__path__[0]),
             '      self.setUp()',
-            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m292\x1b[0m\x1b[0m in \x1b[36msetUp\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m'.format(nose.__path__[0]),
             '      self.setupContext(ancestor)',
-            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m315\x1b[0m\x1b[0m in \x1b[36msetupContext\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m'.format(nose.__path__[0]),
             '      try_run(context, names)',
-            '    \x1b[34m{0}/util.py\x1b[0m line \x1b[1m\x1b[36m471\x1b[0m\x1b[0m in \x1b[36mtry_run\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/util.py\x1b[0m line \x1b[1m\x1b[36m'.format(nose.__path__[0]),
             '      return func()',
             '    \x1b[34mtest_files/class_test_failure.py\x1b[0m line \x1b[1m\x1b[36m6\x1b[0m\x1b[0m in \x1b[36msetup_module\x1b[0m',
             "      raise unittest.SkipTest('RESI specific Nonius libs not present')",
@@ -186,20 +188,14 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
         self.old_encoding = sys.getdefaultencoding()
         if PY2:
             reload(sys)
-        else:
-            import importlib
-            importlib.reload(sys)
-        sys.setdefaultencoding('utf8')
+            sys.setdefaultencoding('utf8')
         super(TestRedNoseEncoding, self).setUp()
 
     def tearDown(self):
         import sys
         if PY2:
             reload(sys)
-        else:
-            import importlib
-            importlib.reload(sys)
-        sys.setdefaultencoding(self.old_encoding)
+            sys.setdefaultencoding(self.old_encoding)
         super(TestRedNoseEncoding, self).tearDown()
 
     def test_colored_result(self):
@@ -209,7 +205,7 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
             '\x1b[31m1) FAIL: test_files.encoding_test.test\x1b[0m',
             '\x1b[31m----------------------------------------------------------------------\x1b[0m',
             '\x1b[0m   Traceback (most recent call last):\x1b[0m',
-            '    \x1b[34m{0}/case.py\x1b[0m line \x1b[1m\x1b[36m197\x1b[0m\x1b[0m in \x1b[36mrunTest\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/case.py\x1b[0m line \x1b[1m\x1b[36m'.format(nose.__path__[0]),
             '      self.test(*self.arg)',
             '    \x1b[34mtest_files/encoding_test.py\x1b[0m line \x1b[1m\x1b[36m8\x1b[0m\x1b[0m in \x1b[36mtest\x1b[0m',
             '      assert False, "\xc3\xa4"',
@@ -220,6 +216,12 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
             '\x1b[31m1 FAILED\x1b[0m\x1b[32m (0 tests passed)\x1b[0m',
             ''
         ]
+
+        if PY3:
+            pass
+            expected_lines[8] = '      assert False, "ä"'
+            expected_lines[9] = '\x1b[31m   \x1b[31m\x1b[1m\x1b[31mAssertionError\x1b[0m\x1b[0m\x1b[31m: \x1b[0m\x1b[31mä\x1b[0m'
+
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
                 print(expected_line)
@@ -240,20 +242,14 @@ class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
         self.old_encoding = sys.getdefaultencoding()
         if PY2:
             reload(sys)
-        else:
-            import importlib
-            importlib.reload(sys)
-        sys.setdefaultencoding('utf8')
+            sys.setdefaultencoding('utf8')
         super(TestRedNoseEncodingWithLiterals, self).setUp()
 
     def tearDown(self):
         import sys
         if PY2:
             reload(sys)
-        else:
-            import importlib
-            importlib.reload(sys)
-        sys.setdefaultencoding(self.old_encoding)
+            sys.setdefaultencoding(self.old_encoding)
         super(TestRedNoseEncodingWithLiterals, self).tearDown()
 
     def test_colored_result(self):
@@ -274,6 +270,12 @@ class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
             '\x1b[31m1 FAILED\x1b[0m\x1b[32m (0 tests passed)\x1b[0m',
             ''
         ]
+
+        if PY3:
+            expected_lines[6] = "      self.assertEqual('café', 'abc')"
+            expected_lines[7] = "\x1b[31m   \x1b[31m\x1b[1m\x1b[31mAssertionError\x1b[0m\x1b[0m\x1b[31m: \x1b[0m\x1b[31m'café' != 'abc'\x1b[0m"
+            expected_lines[8] = "\x1b[31m   - café\x1b[0m"
+
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
                 print(expected_line)
