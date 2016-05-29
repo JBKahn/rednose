@@ -13,6 +13,7 @@ setup(
     description='coloured output for nosetests',
     entry_points={'nose.plugins.0.10': ['NOSETESTS_PLUGINS = rednose:RedNose']},
     install_requires=['setuptools', 'python-termstyle >=0.1.7', 'colorama'],
+    tests_require=['six==1.10.0'],
     long_description=read('README.rst'),
     name='rednose',
     py_modules=['rednose'],
@@ -29,4 +30,5 @@ setup(
     ],
     keywords='test nosetests nose nosetest output colour console',
     license='BSD',
+    test_suite='test_files.new_tests',
 )

@@ -159,7 +159,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
     def __init__(self, stream, descriptions, verbosity, config, errorClasses=None, immediate=False, use_relative_path=False, hide_skips=False):  # noqa
         super(ColourTextTestResult, self).__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, config=config, errorClasses=errorClasses)
-        self.has_test_ids = config.options.enable_plugin_id
+        self.has_test_ids = getattr(config.options, "enable_plugin_id", False)
         if self.has_test_ids:
             self.ids = self.get_test_ids(self.config.options.testIdFile)
         self.total = 0
@@ -289,12 +289,15 @@ class ColourTextTestResult(nose.result.TextTestResult):
 
     def _report_test(self, report_index_num, type_, test, err):  # noqa
         """report the results of a single (failing or errored) test"""
+        exc_type, exc_instance, exc_trace = err
+
         if type_ == failure:
             color = termstyle.red
+        elif type_ == skip:
+            color = termstyle.blue
+            exc_type = nose.SkipTest
         else:
             color = termstyle.yellow
-
-        exc_type, exc_instance, exc_trace = err
 
         colored_error_text = [
             ''.join(self.format_traceback(exc_trace)),
