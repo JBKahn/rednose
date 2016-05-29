@@ -32,9 +32,9 @@ class TestRedNoseWithId(PluginTester, unittest.TestCase):
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
-                print expected_line
-                print actual_line
-                print self.output
+                print(expected_line)
+                print(actual_line)
+                print(self.output)
             self.assertTrue(expected_line in actual_line)
 
     def makeSuite(self):  # noqa
@@ -66,9 +66,9 @@ class TestRedNose(PluginTester, unittest.TestCase):
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
-                print expected_line
-                print actual_line
-                print self.output
+                print(expected_line)
+                print(actual_line)
+                print(self.output)
             self.assertTrue(expected_line in actual_line)
 
     def makeSuite(self):  # noqa
@@ -87,7 +87,7 @@ class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
         expected_lines = [
             '\x1b[34m-\x1b[0m',
             '\x1b[34m======================================================================\x1b[0m',
-            "\x1b[34m1) SKIP: test suite for <module 'test_files.class_test_failure' from '{0}/test_files/class_test_failure.pyc'>\x1b[0m".format(os.getcwd()),
+            "\x1b[34m1) SKIP: test suite for <module 'test_files.class_test_failure' from '{0}/test_files/class_test_failure.py".format(os.getcwd()),
             '\x1b[34m----------------------------------------------------------------------\x1b[0m',
             '\x1b[0m   Traceback (most recent call last):\x1b[0m',
             '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m209\x1b[0m\x1b[0m in \x1b[36mrun\x1b[0m'.format(nose.__path__[0]),
@@ -109,9 +109,9 @@ class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
-                print expected_line
-                print actual_line
-                print self.output
+                print(expected_line)
+                print(actual_line)
+                print(self.output)
             self.assertTrue(expected_line in actual_line)
 
 
@@ -168,9 +168,9 @@ class TestRedNoseSampleTests(PluginTester, unittest.TestCase):
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
-                print expected_line
-                print actual_line
-                print self.output
+                print(expected_line)
+                print(actual_line)
+                print(self.output)
             self.assertTrue(expected_line in actual_line)
 
 
@@ -222,9 +222,9 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
-                print expected_line
-                print actual_line
-                print self.output
+                print(expected_line)
+                print(actual_line)
+                print(self.output)
             self.assertTrue(expected_line in actual_line)
 
 
@@ -276,7 +276,7 @@ class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
             if expected_line not in actual_line:
-                print expected_line
-                print actual_line
-                print self.output
+                print(expected_line)
+                print(actual_line)
+                print(self.output)
             self.assertTrue(expected_line in actual_line)
