@@ -1,6 +1,10 @@
 ## Change Log
 
 List of Rednose releases and changes, with the latest at the top:
+  * v1.2.1
+    * In python 2.7+ label skips as skip tests.
+    * Change skip test exception coloring to blue..
+
   * v1.1.1
     * Fix for immediate broken with recent release when I switched API ussage and removed an function.
 
