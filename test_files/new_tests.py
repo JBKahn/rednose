@@ -3,6 +3,7 @@ import unittest
 
 import nose
 from nose.plugins import PluginTester, testid
+from six import PY2
 
 from rednose import RedNose
 
@@ -30,10 +31,14 @@ class TestRedNoseWithId(PluginTester, unittest.TestCase):
             '',
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
-            self.assertIn(expected_line, actual_line, self.output)
+            if expected_line not in actual_line:
+                print expected_line
+                print actual_line
+                print self.output
+            self.assertTrue(expected_line in actual_line)
 
     def makeSuite(self):  # noqa
-        from basic_test_suite import TC
+        from test_files.basic_test_suite import TC
         return [TC('runTest')]
 
 
@@ -60,10 +65,14 @@ class TestRedNose(PluginTester, unittest.TestCase):
             '',
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
-            self.assertIn(expected_line, actual_line, self.output)
+            if expected_line not in actual_line:
+                print expected_line
+                print actual_line
+                print self.output
+            self.assertTrue(expected_line in actual_line)
 
     def makeSuite(self):  # noqa
-        from basic_test_suite import TC
+        from test_files.basic_test_suite import TC
         return [TC('runTest')]
 
 
@@ -78,16 +87,16 @@ class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
         expected_lines = [
             '\x1b[34m-\x1b[0m',
             '\x1b[34m======================================================================\x1b[0m',
-            "\x1b[34m1) SKIP: test suite for <module 'test_files.class_test_failure' from '{}/test_files/class_test_failure.pyc'>\x1b[0m".format(os.getcwd()),
+            "\x1b[34m1) SKIP: test suite for <module 'test_files.class_test_failure' from '{0}/test_files/class_test_failure.pyc'>\x1b[0m".format(os.getcwd()),
             '\x1b[34m----------------------------------------------------------------------\x1b[0m',
             '\x1b[0m   Traceback (most recent call last):\x1b[0m',
-            '    \x1b[34m{}/suite.py\x1b[0m line \x1b[1m\x1b[36m209\x1b[0m\x1b[0m in \x1b[36mrun\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m209\x1b[0m\x1b[0m in \x1b[36mrun\x1b[0m'.format(nose.__path__[0]),
             '      self.setUp()',
-            '    \x1b[34m{}/suite.py\x1b[0m line \x1b[1m\x1b[36m292\x1b[0m\x1b[0m in \x1b[36msetUp\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m292\x1b[0m\x1b[0m in \x1b[36msetUp\x1b[0m'.format(nose.__path__[0]),
             '      self.setupContext(ancestor)',
-            '    \x1b[34m{}/suite.py\x1b[0m line \x1b[1m\x1b[36m315\x1b[0m\x1b[0m in \x1b[36msetupContext\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/suite.py\x1b[0m line \x1b[1m\x1b[36m315\x1b[0m\x1b[0m in \x1b[36msetupContext\x1b[0m'.format(nose.__path__[0]),
             '      try_run(context, names)',
-            '    \x1b[34m{}/util.py\x1b[0m line \x1b[1m\x1b[36m471\x1b[0m\x1b[0m in \x1b[36mtry_run\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/util.py\x1b[0m line \x1b[1m\x1b[36m471\x1b[0m\x1b[0m in \x1b[36mtry_run\x1b[0m'.format(nose.__path__[0]),
             '      return func()',
             '    \x1b[34mtest_files/class_test_failure.py\x1b[0m line \x1b[1m\x1b[36m6\x1b[0m\x1b[0m in \x1b[36msetup_module\x1b[0m',
             "      raise unittest.SkipTest('RESI specific Nonius libs not present')",
@@ -99,7 +108,11 @@ class TestRedNoseSkipInClass(PluginTester, unittest.TestCase):
             '',
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
-            self.assertIn(expected_line, actual_line, self.output)
+            if expected_line not in actual_line:
+                print expected_line
+                print actual_line
+                print self.output
+            self.assertTrue(expected_line in actual_line)
 
 
 class TestRedNoseSampleTests(PluginTester, unittest.TestCase):
@@ -154,7 +167,11 @@ class TestRedNoseSampleTests(PluginTester, unittest.TestCase):
             ''
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
-            self.assertIn(expected_line, actual_line, self.output)
+            if expected_line not in actual_line:
+                print expected_line
+                print actual_line
+                print self.output
+            self.assertTrue(expected_line in actual_line)
 
 
 class TestRedNoseEncoding(PluginTester, unittest.TestCase):
@@ -167,13 +184,21 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
     def setUp(self):
         import sys
         self.old_encoding = sys.getdefaultencoding()
-        reload(sys)
+        if PY2:
+            reload(sys)
+        else:
+            import importlib
+            importlib.reload(sys)
         sys.setdefaultencoding('utf8')
         super(TestRedNoseEncoding, self).setUp()
 
     def tearDown(self):
         import sys
-        reload(sys)
+        if PY2:
+            reload(sys)
+        else:
+            import importlib
+            importlib.reload(sys)
         sys.setdefaultencoding(self.old_encoding)
         super(TestRedNoseEncoding, self).tearDown()
 
@@ -184,7 +209,7 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
             '\x1b[31m1) FAIL: test_files.encoding_test.test\x1b[0m',
             '\x1b[31m----------------------------------------------------------------------\x1b[0m',
             '\x1b[0m   Traceback (most recent call last):\x1b[0m',
-            '    \x1b[34m{}/case.py\x1b[0m line \x1b[1m\x1b[36m197\x1b[0m\x1b[0m in \x1b[36mrunTest\x1b[0m'.format(nose.__path__[0]),
+            '    \x1b[34m{0}/case.py\x1b[0m line \x1b[1m\x1b[36m197\x1b[0m\x1b[0m in \x1b[36mrunTest\x1b[0m'.format(nose.__path__[0]),
             '      self.test(*self.arg)',
             '    \x1b[34mtest_files/encoding_test.py\x1b[0m line \x1b[1m\x1b[36m8\x1b[0m\x1b[0m in \x1b[36mtest\x1b[0m',
             '      assert False, "\xc3\xa4"',
@@ -196,7 +221,11 @@ class TestRedNoseEncoding(PluginTester, unittest.TestCase):
             ''
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
-            self.assertIn(expected_line, actual_line, self.output)
+            if expected_line not in actual_line:
+                print expected_line
+                print actual_line
+                print self.output
+            self.assertTrue(expected_line in actual_line)
 
 
 class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
@@ -209,13 +238,21 @@ class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
     def setUp(self):
         import sys
         self.old_encoding = sys.getdefaultencoding()
-        reload(sys)
+        if PY2:
+            reload(sys)
+        else:
+            import importlib
+            importlib.reload(sys)
         sys.setdefaultencoding('utf8')
         super(TestRedNoseEncodingWithLiterals, self).setUp()
 
     def tearDown(self):
         import sys
-        reload(sys)
+        if PY2:
+            reload(sys)
+        else:
+            import importlib
+            importlib.reload(sys)
         sys.setdefaultencoding(self.old_encoding)
         super(TestRedNoseEncodingWithLiterals, self).tearDown()
 
@@ -238,4 +275,8 @@ class TestRedNoseEncodingWithLiterals(PluginTester, unittest.TestCase):
             ''
         ]
         for expected_line, actual_line in zip(expected_lines, str(self.output).split("\n")):
-            self.assertIn(expected_line, actual_line, self.output)
+            if expected_line not in actual_line:
+                print expected_line
+                print actual_line
+                print self.output
+            self.assertTrue(expected_line in actual_line)
