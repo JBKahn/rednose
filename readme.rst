@@ -9,11 +9,13 @@ Installation:
 -------------
 ::
 
-	easy_install rednose
+	pip install rednose
 	
 or from the source::
 
-	./setup.py develop
+	python setup.py install
+
+Rednose officially supports Python 2.7, 3.4, and 3.5.
 
 Usage:
 ------
