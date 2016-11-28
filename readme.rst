@@ -5,6 +5,10 @@ rednose
 rednose is a `nosetests`_
 plugin for adding colour (and readability) to nosetest console results.
 
+.. image:: rednose_example.png
+	:scale: 50 %
+	:align: center
+
 Installation:
 -------------
 ::
