@@ -30,3 +30,13 @@ class SomeTest(unittest.TestCase):
     def test_with_long_description(self):
         """It's got a long description, you see?."""
         self.fail()
+
+
+class TestBug(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import nose
+        raise nose.SkipTest("SKIPPING!")
+
+    def test_bug(self):
+        pass

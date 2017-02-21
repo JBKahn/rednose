@@ -272,7 +272,10 @@ class ColourTextTestResult(nose.result.TextTestResult):
         if isinstance(err, Exception):
             err = (err.__class__, err, None)
         elif self.verbose:
-            skip_message = "#{test_id} {test_location} ... ".format(test_id=self._get_id(test), test_location=test.context.__file__)
+            skip_message = "#{test_id} {test_location} ... ".format(
+                test_id=self._get_id(test),
+                test_location=getattr(test.context, "__file__", getattr(test.context, "__module__", None))
+            )
             self._out(termstyle.reset(skip_message))
         self.skip += 1
         self._print_test(test, skip, termstyle.blue)
