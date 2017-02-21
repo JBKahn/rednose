@@ -18,7 +18,7 @@ setup(
     name='rednose',
     py_modules=['rednose'],
     url='https://github.com/JBKahn/rednose',
-    version='1.2.1',
+    version='1.2.2',
     classifiers=[
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
