@@ -190,7 +190,7 @@ class ColourTextTestResult(nose.result.TextTestResult):
                 data = load(fh)
 
             return dict((address, _id) for _id, address in data["ids"].items())
-        except IOError:
+        except (IOError, ValueError):
             return {}
 
     def printSummary(self, start, stop):  # noqa
