@@ -63,6 +63,8 @@ line_length = 77
 
 
 class RedNose(nose.plugins.Plugin):
+    # In order to color multiprocess output it has to have a higher score.
+    score = 1001
     env_opt = 'NOSE_REDNOSE'
     env_opt_color = 'NOSE_REDNOSE_COLOR'
     env_opt_hide_skips = 'NOSE_REDNOSE_HIDE_SKIPS'

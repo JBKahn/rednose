@@ -5,6 +5,7 @@ List of Rednose releases and changes, with the latest at the top:
     * Add `NOSE_REDNOSE_HIDE_SKIPS` environment variable.
     * Fix `NOSE_REDNOSE` environment variable.
     * Added LICENCE file
+    * Allow using rednose with multiprocess.
 
   * v1.2.3
     * Fix bug when switching between python 2 and 3 using node ids.
