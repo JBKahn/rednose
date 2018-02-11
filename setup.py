@@ -18,9 +18,9 @@ setup(
     name='rednose',
     py_modules=['rednose'],
     url='https://github.com/JBKahn/rednose',
-    version='1.2.3',
+    version='1.3.0',
     classifiers=[
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
@@ -29,6 +29,6 @@ setup(
         "Topic :: Software Development :: Testing",
     ],
     keywords='test nosetests nose nosetest output colour console',
-    license='BSD',
+    license='MIT',
     test_suite='test_files.new_tests',
 )

@@ -1,6 +1,11 @@
 ## Change Log
 
 List of Rednose releases and changes, with the latest at the top:
+  * v1.3.0
+    * Add `NOSE_REDNOSE_HIDE_SKIPS` environment variable.
+    * Fix `NOSE_REDNOSE` environment variable.
+    * Added LICENCE file
+
   * v1.2.3
     * Fix bug when switching between python 2 and 3 using node ids.
     * Added stream flush after every write to make sure dots are printed right after a test is executed.
