@@ -63,15 +63,22 @@ line_length = 77
 
 
 class RedNose(nose.plugins.Plugin):
+    # In order to color multiprocess output it has to have a higher score.
+    score = 1001
     env_opt = 'NOSE_REDNOSE'
     env_opt_color = 'NOSE_REDNOSE_COLOR'
+    env_opt_hide_skips = 'NOSE_REDNOSE_HIDE_SKIPS'
 
     def __init__(self, *args):
         super(RedNose, self).__init__(*args)
         self.enabled = False
 
     def options(self, parser, env=os.environ):
-        rednose_on = bool(env.get(self.env_opt, False))
+        rednose_on_env_value = env.get(self.env_opt, False)
+        rednose_hide_skips_env_value = env.get(self.env_opt_hide_skips, False)
+
+        rednose_on = bool(rednose_on_env_value) if rednose_on_env_value not in ['false', '0'] else False
+        rednose_hide_skips = bool(rednose_hide_skips_env_value) if rednose_hide_skips_env_value not in ['false', '0'] else False
         rednose_color = env.get(self.env_opt_color, 'auto')
 
         parser.add_option(
@@ -110,7 +117,7 @@ class RedNose(nose.plugins.Plugin):
         parser.add_option(
             "--hide-skips",
             action="store_true",
-            default=False,
+            default=rednose_hide_skips,
             help="Hide the error printing for skip cases (default is to show them)"
         )
 
