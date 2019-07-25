@@ -57,4 +57,4 @@ the end, to enable it use::
 
 	nosetests --rednose --immediate
 
-.. _nosetests: http://somethingaboutorange.com/mrl/projects/nose/
+.. _nosetests: https://nose.readthedocs.io/en/latest/ 
