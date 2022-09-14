@@ -12,7 +12,7 @@ setup(
     packages=find_packages(exclude=['test', 'test.*']),
     description='coloured output for nosetests',
     entry_points={'nose.plugins.0.10': ['NOSETESTS_PLUGINS = rednose:RedNose']},
-    install_requires=['setuptools', 'termstyle >=0.1.7', 'colorama'],
+    install_requires=['termstyle >=0.1.7', 'colorama'],
     tests_require=['six==1.10.0'],
     long_description=read('README.rst'),
     name='rednose',
